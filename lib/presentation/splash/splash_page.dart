@@ -29,8 +29,8 @@ class _SplashPageState extends State<SplashPage> {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.splashTopGradientColor,
-            AppColors.splashBottomGradientColor
+            AppColors.backgroundTopGradientColor,
+            AppColors.backgroundEndGradientColor
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -38,20 +38,23 @@ class _SplashPageState extends State<SplashPage> {
       ),
       child: Column(
         children: [
-          const Spacer(flex: 1),
-          AnimatedOpacity(
-            opacity: opacity,
-            duration: const Duration(milliseconds: 1500),
-            curve: Curves.easeOutQuad,
-//            onEnd: () => Navigator.of(context)
-//                .pushReplacementNamed(RouteName.login.route),
-            child: SvgPicture.asset(
-              AppImages.logo,
-              height: 72,
-              alignment: Alignment.center,
+          const Spacer(flex: 5),
+          Expanded(
+            flex: 2,
+            child: AnimatedOpacity(
+              opacity: opacity,
+              duration: const Duration(milliseconds: 1500),
+              curve: Curves.easeInOutQuad,
+            onEnd: () => Navigator.of(context)
+                .pushReplacementNamed(RouteName.weather.route),
+              child: SvgPicture.asset(
+                AppImages.logo,
+                height: 58,
+                alignment: Alignment.center,
+              ),
             ),
           ),
-          const Spacer(flex: 614 ~/ 140),
+          const Spacer(flex: 23),
         ],
       ),
     ));
