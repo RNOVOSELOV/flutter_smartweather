@@ -100,7 +100,7 @@ final lightTheme = _base.copyWith(
     style: ButtonStyle(
       padding:
           MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 12)),
-      elevation: MaterialStateProperty.all(4),
+      elevation: MaterialStateProperty.all(6),
       shape: MaterialStateProperty.all(
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
