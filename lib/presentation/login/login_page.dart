@@ -46,7 +46,7 @@ class _LoginPageWidgetState extends State<_LoginPageWidget> {
 
       LocationDto? locationDto;
       try {
-        final position = await geo.determinePosition();
+        final position = await geo.getCurrentPosition();
         print('!!! Position $position');
         locationDto = LocationDto.fromPosition(position: position);
       } on GeoException catch (exception) {

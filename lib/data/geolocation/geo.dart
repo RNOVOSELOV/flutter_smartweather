@@ -25,22 +25,27 @@ class Geo {
     return true;
   }
 
-  FutureOr<Position> determinePosition() async {
+  FutureOr<Position?> getLastKnownPosition() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always) {
+      return await Geolocator.getLastKnownPosition();
+    }
+    return null;
+  }
+
+  FutureOr<Position> getCurrentPosition() async {
     if (!serviceEnabled) {
       final serviceStatus = await checkServiceAvailability();
       if (!serviceStatus) {
         throw GeoException(error: GeoError.geoServiceDisabled);
       }
     }
-    LocationPermission permission;
-    permission = await Geolocator.checkPermission();
+
+    LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        throw GeoException(error: GeoError.geoPermissionDenied);
-      }
-    }
-    if (permission == LocationPermission.deniedForever) {
+      throw GeoException(error: GeoError.geoPermissionDenied);
+    } else if (permission == LocationPermission.deniedForever) {
       throw GeoException(error: GeoError.geoPermissionDeniedForever);
     }
     return await Geolocator.getCurrentPosition(
