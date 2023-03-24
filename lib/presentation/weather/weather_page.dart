@@ -1,8 +1,11 @@
 import 'package:css_filter/css_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
+import 'package:weather/resources/app_strings.dart';
+import 'package:weather/theme/theme_extensions.dart';
 
 class WeatherPage extends StatefulWidget {
   const WeatherPage({Key? key}) : super(key: key);
@@ -37,7 +40,9 @@ class _WeatherPageState extends State<WeatherPage> {
                 _DayWeatherInfoWidget(),
                 _AdditionalWeatherInfoWidget(),
                 SliverToBoxAdapter(
-                  child: SizedBox(height: 300,),
+                  child: SizedBox(
+                    height: 270,
+                  ),
                 )
               ],
             ),
@@ -50,9 +55,7 @@ class _WeatherPageState extends State<WeatherPage> {
 }
 
 class _LocationBar extends StatelessWidget {
-  const _LocationBar({
-    super.key,
-  });
+  const _LocationBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -64,22 +67,17 @@ class _LocationBar extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 28,
-            ),
+            const SizedBox(width: 28),
             SvgPicture.asset(
               AppImages.iconLocation,
               width: 16,
             ),
-            SizedBox(
-              width: 12,
-            ),
+            const SizedBox(width: 12),
             Text('Архангельск, Россия',
-                style: TextStyle(
-                    height: 22 / 15,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white)),
+                style: GoogleFonts.roboto(
+                  textStyle: context.theme.b2,
+                  fontWeight: FontWeight.w500,
+                )),
           ],
         ),
       ),
@@ -88,9 +86,7 @@ class _LocationBar extends StatelessWidget {
 }
 
 class _AppBarWidget extends StatelessWidget {
-  const _AppBarWidget({
-    super.key,
-  });
+  const _AppBarWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +105,7 @@ class _AppBarWidget extends StatelessWidget {
         ],
         background: Column(
           children: [
-            Spacer(),
+            const Spacer(),
             Stack(
               children: [
                 Align(
@@ -137,9 +133,7 @@ class _AppBarWidget extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(
-              height: 24,
-            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -148,9 +142,7 @@ class _AppBarWidget extends StatelessWidget {
 }
 
 class _MainWeatherInfoWidget extends StatelessWidget {
-  const _MainWeatherInfoWidget({
-    super.key,
-  });
+  const _MainWeatherInfoWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -161,30 +153,21 @@ class _MainWeatherInfoWidget extends StatelessWidget {
         children: [
           Text(
             '27º',
-            style: TextStyle(
-                fontSize: 64,
+            style: GoogleFonts.ubuntu(
+                fontStyle: FontStyle.normal,
                 fontWeight: FontWeight.w500,
+                fontSize: 64,
                 height: 72 / 64,
-                color: Colors.white),
+                color: AppColors.textWhiteColor),
           ),
           Text(
             'Ясно',
-            style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w400,
-                height: 24 / 17,
-                color: Colors.white),
+            style: context.theme.b1,
           ),
-          SizedBox(
-            height: 8,
-          ),
+          const SizedBox(height: 8),
           Text(
-            'Макс.: 31º Мин: 25º',
-            style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w400,
-                height: 24 / 17,
-                color: Colors.white),
+            '${AppStrings.maxTemperature} 31º ${AppStrings.minTemperature} 25º',
+            style: context.theme.b1,
           ),
         ],
       ),
@@ -193,9 +176,7 @@ class _MainWeatherInfoWidget extends StatelessWidget {
 }
 
 class _DayWeatherInfoWidget extends StatelessWidget {
-  const _DayWeatherInfoWidget({
-    super.key,
-  });
+  const _DayWeatherInfoWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -217,31 +198,29 @@ class _DayWeatherInfoWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Сегодня',
-                    style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w500,
-                        height: 24 / 17,
-                        color: Colors.white),
+                    AppStrings.currentDay,
+                    style: GoogleFonts.roboto(
+                      textStyle: context.theme.b1,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   Text(
                     '20 марта',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w400,
-                        height: 22 / 15,
-                        color: AppColors.textDateColor),
+                    style: GoogleFonts.roboto(
+                      textStyle: context.theme.b2,
+                      color: AppColors.textDateColor,
+                    ),
                   ),
                 ],
               ),
             ),
-            Divider(
+            const Divider(
               color: AppColors.dividerColor,
               thickness: 1,
               height: 1,
             ),
             Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: SizedBox(
                 height: 142,
                 child: ListView.builder(
@@ -261,41 +240,7 @@ class _DayWeatherInfoWidget extends StatelessWidget {
                                   width: 1,
                                   color: AppColors.activeCartBorderColor),
                             ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 16,
-                          ),
-                          Text(
-                            '15:00',
-                            style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.white,
-                                height: 22 / 15),
-                          ),
-                          SizedBox(
-                            height: 16,
-                          ),
-                          Image.asset(
-                            AppImages.iconCloudLightning,
-                            height: 32,
-                            width: 32,
-                          ),
-                          SizedBox(
-                            height: 16,
-                          ),
-                          Text(
-                            '23º',
-                            style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
-                                height: 24 / 17),
-                          ),
-                        ],
-                      ),
+                      child: const _CartInDayListWidget(),
                     );
                   },
                 ),
@@ -308,17 +253,47 @@ class _DayWeatherInfoWidget extends StatelessWidget {
   }
 }
 
+class _CartInDayListWidget extends StatelessWidget {
+  const _CartInDayListWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(height: 16),
+        Text(
+          '15:00',
+          style: context.theme.b2,
+        ),
+        const SizedBox(height: 16),
+        Image.asset(
+          AppImages.iconCloudLightning,
+          height: 32,
+          width: 32,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          '23º',
+          style: GoogleFonts.roboto(
+            textStyle: context.theme.b1,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _AdditionalWeatherInfoWidget extends StatelessWidget {
-  const _AdditionalWeatherInfoWidget({
-    super.key,
-  });
+  const _AdditionalWeatherInfoWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.only(left: 24, right: 24, bottom: 38),
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
         decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(20)),
           color: AppColors.backgroundCardColor,
@@ -340,31 +315,27 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
                         width: 24,
                         height: 24,
                       ),
-                      SizedBox(
-                        width: 8,
-                      ),
+                      const SizedBox(width: 8),
                       Text(
-                        '2 м/c',
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                            height: 22 / 15),
+                        '2 ${AppStrings.windSpeed}',
+                        style: GoogleFonts.roboto(
+                          textStyle: context.theme.b2,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 Text(
                   'Ветер северо-восточный',
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w400,
-                      height: 22 / 15,
-                      color: AppColors.textAdditionalColor),
+                  style: GoogleFonts.roboto(
+                    textStyle: context.theme.b2,
+                    color: AppColors.textAdditionalColor,
+                  ),
                 ),
               ],
             ),
-            SizedBox(height: 16,),
+            const SizedBox(height: 16),
             Row(
               children: [
                 SizedBox(
@@ -379,27 +350,23 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
                         width: 24,
                         height: 24,
                       ),
-                      SizedBox(
-                        width: 8,
-                      ),
+                      const SizedBox(width: 8),
                       Text(
                         '100 %',
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                            height: 22 / 15),
+                        style: GoogleFonts.roboto(
+                          textStyle: context.theme.b2,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 Text(
                   'Высокая влажность',
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w400,
-                      height: 22 / 15,
-                      color: AppColors.textAdditionalColor),
+                  style: GoogleFonts.roboto(
+                    textStyle: context.theme.b2,
+                    color: AppColors.textAdditionalColor,
+                  ),
                 ),
               ],
             ),
