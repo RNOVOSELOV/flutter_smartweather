@@ -298,81 +298,103 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(20)),
           color: AppColors.backgroundCardColor,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: const Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                SizedBox(
-                  width: 88,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SvgPicture.asset(
-                        AppImages.iconWind,
-                        width: 24,
-                        height: 24,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '2 ${AppStrings.windSpeed}',
-                        style: GoogleFonts.roboto(
-                          textStyle: context.theme.b2,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  'Ветер северо-восточный',
-                  style: GoogleFonts.roboto(
-                    textStyle: context.theme.b2,
-                    color: AppColors.textAdditionalColor,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                SizedBox(
-                  width: 88,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SvgPicture.asset(
-                        AppImages.iconDrop,
-                        width: 24,
-                        height: 24,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '100 %',
-                        style: GoogleFonts.roboto(
-                          textStyle: context.theme.b2,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  'Высокая влажность',
-                  style: GoogleFonts.roboto(
-                    textStyle: context.theme.b2,
-                    color: AppColors.textAdditionalColor,
-                  ),
-                ),
-              ],
-            ),
+            _AdditionalInfoValuesColumnWidget(),
+            _AdditionalInfoDescriptionColumnWidget(),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _AdditionalInfoValuesColumnWidget extends StatelessWidget {
+  const _AdditionalInfoValuesColumnWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SvgPicture.asset(
+              AppImages.iconWind,
+              width: 24,
+              height: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '2 ${AppStrings.windSpeed}',
+              style: GoogleFonts.roboto(
+                textStyle: context.theme.b2,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 16,
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SvgPicture.asset(
+              AppImages.iconDrop,
+              width: 24,
+              height: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '100 %',
+              style: GoogleFonts.roboto(
+                textStyle: context.theme.b2,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _AdditionalInfoDescriptionColumnWidget extends StatelessWidget {
+  const _AdditionalInfoDescriptionColumnWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Ветер северо-восточный',
+          style: GoogleFonts.roboto(
+            textStyle: context.theme.b2,
+            color: AppColors.textAdditionalColor,
+          ),
+        ),
+        const SizedBox(
+          height: 16,
+        ),
+        Text(
+          'Высокая влажность',
+          style: GoogleFonts.roboto(
+            textStyle: context.theme.b2,
+            color: AppColors.textAdditionalColor,
+          ),
+        ),
+      ],
     );
   }
 }
