@@ -25,4 +25,6 @@ class AppStrings {
       'Превышено время определения местоположения';
   static const String geoUnknownError =
       'Произошла ошибка определения местоположения';
+
+  static const String fixButtonLabel = 'Исправить';
 }

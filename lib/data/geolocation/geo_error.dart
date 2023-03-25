@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_strings.dart';
 import 'package:weather/theme/theme_extensions.dart';
@@ -22,14 +23,50 @@ enum GeoError {
   const GeoError({required this.description});
 
   void handleGeoError(BuildContext context) {
+    VoidCallback? fixProblemCallback = GeoError.getFixCallback(this);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          description,
-          textAlign: TextAlign.center,
-          style: context.theme.b1,
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                description,
+                textAlign: fixProblemCallback == null
+                    ? TextAlign.center
+                    : TextAlign.center,
+                style: context.theme.b2,
+              ),
+            ),
+            if (fixProblemCallback != null)
+              const SizedBox(
+                width: 12,
+              ),
+            if (fixProblemCallback != null)
+              ElevatedButton(
+                  onPressed: fixProblemCallback,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    padding: const EdgeInsets.all(4),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(4.0),
+                    child: Text(
+                      AppStrings.fixButtonLabel,
+                      style: TextStyle(
+                        fontStyle: FontStyle.normal,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 15,
+                        height: 22 / 15,
+                        color: AppColors.textWhiteColor,
+                      ),
+                    ),
+                  )),
+          ],
         ),
-        backgroundColor: AppColors.lightPink,
+        backgroundColor: AppColors.grapeColor,
         duration: const Duration(seconds: 5),
         elevation: 4,
         behavior: SnackBarBehavior.floating,
@@ -40,5 +77,19 @@ enum GeoError {
         margin: const EdgeInsets.symmetric(horizontal: 24),
       ),
     );
+  }
+
+  static VoidCallback? getFixCallback(final GeoError error) {
+    if (error == GeoError.geoServiceDisabled) {
+      return () async {
+        await Geolocator.openLocationSettings();
+      };
+    } else if (error == GeoError.geoPermissionDenied ||
+        error == GeoError.geoPermissionDeniedForever) {
+      return () async {
+        await Geolocator.openAppSettings();
+      };
+    }
+    return null;
   }
 }
