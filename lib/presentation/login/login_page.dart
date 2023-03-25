@@ -62,6 +62,8 @@ class _LoginPageWidgetState extends State<_LoginPageWidget> {
         locationDto ??= LocationDto.initial();
       }
       print('!!! Location $locationDto');
+      final location = await geo.getPositionAddress(location: locationDto,);
+      print('NEW location: $location');
     });
   }
 

@@ -19,6 +19,7 @@ dependencies:
   flutter_dotenv: ^5.0.2
   css_filter: ^1.0.3
   geolocator: ^9.0.2
+  geocoding: ^2.1.0
 
 dev_dependencies:
   flutter_test:

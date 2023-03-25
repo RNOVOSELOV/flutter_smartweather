@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:weather/data/geolocation/geo_error.dart';
+import 'package:weather/data/geolocation/models/location_dto.dart';
 
 class Geo {
   bool serviceEnabled = false;
@@ -52,5 +54,24 @@ class Geo {
       desiredAccuracy: LocationAccuracy.low,
       timeLimit: const Duration(seconds: 5),
     );
+  }
+
+  FutureOr<LocationDto> getPositionAddress(
+      {required LocationDto location}) async {
+    List<Placemark> placesList = await placemarkFromCoordinates(
+      location.latitude,
+      location.longitude,
+      localeIdentifier: 'ru_RU',
+    );
+    if (placesList.isEmpty) {
+      return location;
+    }
+    final place = placesList.first;
+    final location1 = ((place.locality ?? place.subAdministrativeArea) ??
+            place.administrativeArea) ??
+        'Unknown place';
+    final location2 =
+        (place.country ?? place.isoCountryCode) ?? 'Unknown country';
+    return location.copyWith(location: '$location1, $location2');
   }
 }
