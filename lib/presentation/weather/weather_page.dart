@@ -93,8 +93,7 @@ class _AppBarWidget extends StatelessWidget {
     return SliverAppBar(
       primary: true,
       stretch: true,
-      pinned: true,
-      floating: true,
+      pinned: true, // here
       expandedHeight: 272,
       backgroundColor: Colors.transparent,
       flexibleSpace: FlexibleSpaceBar(
@@ -166,7 +165,7 @@ class _MainWeatherInfoWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '${AppStrings.maxTemperature} 31º ${AppStrings.minTemperature} 25º',
+            '${AppStrings.maxTemperatureString} 31º ${AppStrings.minTemperatureString} 25º',
             style: context.theme.b1,
           ),
         ],
@@ -198,7 +197,7 @@ class _DayWeatherInfoWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    AppStrings.currentDay,
+                    AppStrings.currentDayString,
                     style: GoogleFonts.roboto(
                       textStyle: context.theme.b1,
                       fontWeight: FontWeight.w500,
@@ -332,7 +331,7 @@ class _AdditionalInfoValuesColumnWidget extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              '2 ${AppStrings.windSpeed}',
+              '2 ${AppStrings.windSpeedString}',
               style: GoogleFonts.roboto(
                 textStyle: context.theme.b2,
                 fontWeight: FontWeight.w500,

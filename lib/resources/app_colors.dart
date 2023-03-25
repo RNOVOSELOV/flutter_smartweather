@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  static const Color whiteColor = Colors.white;
-  static const Color gunMetalColor = Color(0xFF2B2D33);
-  static const Color coolGreyColor = Color(0xFF8799A5);
-  static const Color brightGrayColor = Color(0xFFE4E6EC);
-  static const Color mediumPurpleColor = Color(0xFF9C53F6);
-  static const Color heliotropeColor = Color(0xFFBD87FF);
-  static const Color grapeColor = Color(0xFF330072);
-  static const Color redColor = Color(0xFFFF585D);
+  static const whiteColor = Colors.white;
+  static const gunMetalColor = Color(0xFF2B2D33);
+  static const coolGreyColor = Color(0xFF8799A5);
+  static const brightGrayColor = Color(0xFFE4E6EC);
+  static const mediumPurpleColor = Color(0xFF9C53F6);
+  static const heliotropeColor = Color(0xFFBD87FF);
+  static const grapeColor = Color(0xFF330072);
+  static const redColor = Color(0xFFFF585D);
+  static const lightPink = Color(0xFFE71251);
 
   static const Color backgroundTopGradientColor = grapeColor;
   static const Color backgroundEndGradientColor = Color(0xFF4B00A7);
@@ -27,4 +28,8 @@ class AppColors {
   static const Color textWhiteColor = whiteColor;
   static const Color textAdditionalColor = backgroundBlurColor;
   static const Color textDateColor = backgroundBlurColor;
+
+  static const Color cursorColor = redColor;
+  static final Color selectionColor = redColor.withOpacity(0.4);
+  static const Color hintErrorColor = lightPink;
 }
