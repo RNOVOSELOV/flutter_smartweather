@@ -37,34 +37,6 @@ class _LoginPageWidgetState extends State<_LoginPageWidget> {
     super.initState();
     _emailFocusNode = FocusNode();
     _passwordFocusNode = FocusNode();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final geo = Geo();
-      final service = await geo.checkServiceAvailability();
-      print('!!! Service $service');
-      final permission = await geo.checkLocationPermission();
-      print('!!! Permission $permission');
-
-      LocationDto? locationDto;
-      try {
-        final position = await geo.getCurrentPosition();
-        print('!!! Position $position');
-        locationDto = LocationDto.fromPosition(position: position);
-      } on GeoException catch (exception) {
-        exception.error.handleGeoError(context);
-        print('Error: $exception');
-      } on TimeoutException catch (exception) {
-        GeoError.geoTimeoutError.handleGeoError(context);
-        print('Error2: $exception');
-      } catch (err) {
-        GeoError.geoUnknownError.handleGeoError(context);
-        print('Error3: $err');
-      } finally {
-        locationDto ??= LocationDto.initial();
-      }
-      print('!!! Location $locationDto');
-      final location = await geo.getPositionAddress(location: locationDto,);
-      print('NEW location: $location');
-    });
   }
 
   @override
