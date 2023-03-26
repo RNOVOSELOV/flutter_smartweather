@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:weather/data/geolocation/geo_error.dart';
-import 'package:weather/data/geolocation/models/location_dto.dart';
+import 'package:weather/data/dto/location_dto.dart';
 
 class Geo {
   bool serviceEnabled = false;
