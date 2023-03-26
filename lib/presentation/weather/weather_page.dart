@@ -46,22 +46,17 @@ class _WeatherPageState extends State<WeatherPage> {
             end: Alignment.bottomRight,
           ),
         ),
-        child: const Stack(
-          children: [
-            CustomScrollView(
-              slivers: [
-                _AppBarWidget(),
-                _MainWeatherInfoWidget(),
-                _DayWeatherInfoWidget(),
-                _AdditionalWeatherInfoWidget(),
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 270,
-                  ),
-                )
-              ],
-            ),
-            _LocationBar(),
+        child: const CustomScrollView(
+          slivers: [
+            _AppBarWidget(),
+            _MainWeatherInfoWidget(),
+            _DayWeatherInfoWidget(),
+            _AdditionalWeatherInfoWidget(),
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 270,
+              ),
+            )
           ],
         ),
       ),
@@ -74,27 +69,25 @@ class _LocationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        height: 62,
-        color: Colors.transparent,
-        alignment: Alignment.centerLeft,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(width: 28),
-            SvgPicture.asset(
-              AppImages.iconLocation,
-              width: 16,
-            ),
-            const SizedBox(width: 12),
-            Text('Архангельск, Россия',
-                style: GoogleFonts.roboto(
-                  textStyle: context.theme.b2,
-                  fontWeight: FontWeight.w500,
-                )),
-          ],
-        ),
+    return Container(
+      height: 56,
+      color: Colors.transparent,
+      alignment: Alignment.centerLeft,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(width: 28),
+          SvgPicture.asset(
+            AppImages.iconLocation,
+            width: 16,
+          ),
+          const SizedBox(width: 12),
+          Text('Архангельск, Россия',
+              style: GoogleFonts.roboto(
+                textStyle: context.theme.b2,
+                fontWeight: FontWeight.w500,
+              )),
+        ],
       ),
     );
   }
@@ -106,10 +99,13 @@ class _AppBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
+      toolbarHeight: 56,
       primary: true,
       stretch: true,
-      pinned: true, // here
+      pinned: false,
+      elevation: 0,
       expandedHeight: 272,
+      excludeHeaderSemantics: true,
       backgroundColor: Colors.transparent,
       flexibleSpace: FlexibleSpaceBar(
         collapseMode: CollapseMode.parallax,
@@ -117,38 +113,41 @@ class _AppBarWidget extends StatelessWidget {
           StretchMode.blurBackground,
           StretchMode.zoomBackground
         ],
-        background: Column(
-          children: [
-            const Spacer(),
-            Stack(
-              children: [
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: CSSFilter.blur(
-                    child: Container(
-                      height: 150,
-                      width: 150,
-                      margin: const EdgeInsets.only(bottom: 30),
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.backgroundBlurColor,
+        background: SafeArea(
+          child: Column(
+            children: [
+              const _LocationBar(),
+              const Spacer(),
+              Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: CSSFilter.blur(
+                      child: Container(
+                        height: 150,
+                        width: 150,
+                        margin: const EdgeInsets.only(bottom: 30),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.backgroundBlurColor,
+                        ),
                       ),
+                      value: 30,
                     ),
-                    value: 30,
                   ),
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Image.asset(
-                    AppImages.bigIconSun,
-                    height: 180,
-                    width: 180,
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Image.asset(
+                      AppImages.bigIconSun,
+                      height: 180,
+                      width: 180,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-          ],
+                ],
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
@@ -412,7 +411,6 @@ class _AdditionalInfoDescriptionColumnWidget extends StatelessWidget {
     );
   }
 }
-
 
 /*
       final geo = Geo();
