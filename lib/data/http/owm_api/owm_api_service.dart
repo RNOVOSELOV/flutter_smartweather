@@ -2,9 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:either_dart/either.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:weather/data/geolocation/models/location_dto.dart';
+import 'package:weather/data/http/owm_api/api_error_type.dart';
 import 'package:weather/data/http/owm_api/base_api_service.dart';
 import 'package:weather/data/http/owm_api/models/api_error.dart';
-import 'package:weather/data/http/owm_api/models/weather_responce_dto.dart';
+import 'package:weather/data/http/owm_api/models/api_weather_response_dto.dart';
 
 class OwmApiService extends BaseApiService {
   final Dio _dio;
@@ -23,21 +24,22 @@ class OwmApiService extends BaseApiService {
     _units = 'metric';
   }
 
-  Future<Either<ApiError, WeatherResponseDto>> getWeather(
+  Future<Either<ApiError, ApiWeatherResponseDto>> getWeather(
       {required final LocationDto location}) async {
-    return responseOrError(() async {
-      final response = await _dio.get(
-        '/weather',
-        queryParameters: {
-          'lat': location.latitude,
-          'lon': location.longitude,
-          'appid': _apiKey ?? 'nonexistenttoken',
-          'mode': _mode,
-          'lang': _language,
-          'units': _units,
-        },
-      );
-      return WeatherResponseDto.fromJson(response.data);
+    return responseOrError(
+      request: () async {
+        final response = await _dio.get(
+          '/weather',
+          queryParameters: {
+            'lat': location.latitude,
+            'lon': location.longitude,
+            'appid': _apiKey ?? 'nonexistenttoken',
+            'mode': _mode,
+            'lang': _language,
+            'units': _units,
+          },
+        );
+      return ApiWeatherResponseDto.fromJson(response.data);
     });
   }
 }

@@ -23,7 +23,7 @@ class LocationDto extends Equatable {
             latitude: position.latitude,
             longitude: position.longitude,
             location:
-                '${AppStrings.geolocationString} - ${AppStrings.latitudeString}: ${(position.latitude * 100).round() / 100}; ${AppStrings.longitudeString}: ${(position.longitude * 100).round() / 100}.');
+                '${(position.latitude * 100).round() / 100}:${(position.longitude * 100).round() / 100}');
 
   LocationDto copyWith({
     double? latitude,

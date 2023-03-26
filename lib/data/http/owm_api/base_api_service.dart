@@ -5,17 +5,21 @@ import 'package:weather/data/http/owm_api/api_error_type.dart';
 import 'package:weather/data/http/owm_api/models/api_error.dart';
 
 class BaseApiService {
-  Future<Either<ApiError, T>> responseOrError<T>(
-    AsyncValueGetter<T> request,
-  ) async {
+  Future<Either<ApiError, T>> responseOrError<T>({
+    required AsyncValueGetter<T> request,
+  }) async {
     try {
       return Right(await request());
     } catch (e) {
-      return Left(_getApiError(e));
+//  TODO add response data to crashlytics error notification in future version
+//  debugPrint('Location: ${e.location} RESPONSE: ${e.response}');
+      return Left(_getApiError(error: e));
     }
   }
 
-  ApiError _getApiError(final dynamic error) {
+  ApiError _getApiError({
+    required final dynamic error,
+  }) {
     if (error is DioError) {
       if (error.type == DioErrorType.response && error.response != null) {
         try {
