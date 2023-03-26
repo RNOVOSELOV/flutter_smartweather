@@ -1,34 +1,29 @@
 import 'package:css_filter/css_filter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:weather/data/dto/location_dto.dart';
-import 'package:weather/data/http/owm_api/owm_api_service.dart';
 import 'package:weather/di/service_locator.dart';
+import 'package:weather/presentation/weather/block/weather_bloc.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
 import 'package:weather/resources/app_strings.dart';
 import 'package:weather/theme/theme_extensions.dart';
 
-class WeatherPage extends StatefulWidget {
+class WeatherPage extends StatelessWidget {
   const WeatherPage({Key? key}) : super(key: key);
 
   @override
-  State<WeatherPage> createState() => _WeatherPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl.get<WeatherBloc>()..add(const WeatherPageLoaded()),
+      child: const _WeatherPageWidget(),
+    );
+  }
 }
 
-class _WeatherPageState extends State<WeatherPage> {
-  @override
-  void initState() {
-    super.initState();
-    final value = sl.get<OwmApiService>();
-    value.getWeather(location: LocationDto.initial()).then((value) {
-      print('${value.isLeft} ${value.isRight}');
-      debugPrint(value.left.toString());
-      debugPrint('${value.left.errorType.code} ${value.left.cod}');
-      debugPrint('${value.left.errorType.message} ${value.left.message}');
-    });
-  }
+class _WeatherPageWidget extends StatelessWidget {
+  const _WeatherPageWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -439,4 +434,13 @@ class _AdditionalInfoDescriptionColumnWidget extends StatelessWidget {
       print('!!! Location $locationDto');
       final location = await geo.getPositionAddress(location: locationDto,);
       print('NEW location: $location');
+
+
+          final value = sl.get<OwmApiService>();
+    value.getWeather(location: LocationDto.initial()).then((value) {
+      print('${value.isLeft} ${value.isRight}');
+      debugPrint(value.left.toString());
+      debugPrint('${value.left.errorType.code} ${value.left.cod}');
+      debugPrint('${value.left.errorType.message} ${value.left.message}');
+    });
  */

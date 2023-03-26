@@ -1,6 +1,6 @@
+import 'package:geolocator/geolocator.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
-import 'package:geolocator/geolocator.dart';
 
 part 'location_dto.g.dart';
 

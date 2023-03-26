@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:weather/data/geolocation/geo.dart';
 import 'package:weather/data/http/dio_builder.dart';
@@ -5,6 +7,8 @@ import 'package:weather/data/http/owm_api/owm_api_service.dart';
 import 'package:weather/data/storage/local_data_provider.dart';
 import 'package:weather/data/storage/repositories/location_repository.dart';
 import 'package:weather/data/storage/shared_preference_data.dart';
+import 'package:weather/presentation/weather/block/weather_bloc.dart';
+import 'package:weather/simple_bloc_observer.dart';
 
 final sl = GetIt.instance;
 
@@ -38,4 +42,13 @@ void _setupApiRelatesClasses() {
 }
 
 // ONLY FACTORIES
-void _setupBlocks() {}
+void _setupBlocks() {
+  if (kDebugMode) {
+    Bloc.observer = SimpleBlocObserver();
+  }
+  sl.registerFactory(() => WeatherBloc(
+        geolocationService: sl.get<Geo>(),
+        apiService: sl.get<OwmApiService>(),
+        dataService: sl.get<LocalDataProvider>(),
+      ));
+}
