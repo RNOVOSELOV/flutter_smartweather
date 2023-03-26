@@ -41,49 +41,51 @@ class _WeatherPageWidget extends StatelessWidget {
             end: Alignment.bottomRight,
           ),
         ),
-        child: const CustomScrollView(
-          slivers: [
-            _AppBarWidget(),
-            _MainWeatherInfoWidget(),
-            _DayWeatherInfoWidget(),
-            _AdditionalWeatherInfoWidget(),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 270,
-              ),
-            )
-          ],
-        ),
+        child: const _WeatherWidget(),
       ),
     );
   }
 }
 
-class _LocationBar extends StatelessWidget {
-  const _LocationBar({Key? key}) : super(key: key);
+class _WeatherWidget extends StatelessWidget {
+  const _WeatherWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 56,
-      color: Colors.transparent,
-      alignment: Alignment.centerLeft,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(width: 28),
-          SvgPicture.asset(
-            AppImages.iconLocation,
-            width: 16,
-          ),
-          const SizedBox(width: 12),
-          Text('Архангельск, Россия',
-              style: GoogleFonts.roboto(
-                textStyle: context.theme.b2,
-                fontWeight: FontWeight.w500,
-              )),
-        ],
-      ),
+    return BlocBuilder<WeatherBloc, WeatherState>(
+      builder: (context, state) {
+        bool inProgress = false;
+        if (state is WeatherInitialState || state is WeatherInProgressState) {
+          inProgress = true;
+        }
+        return Stack(
+          children: [
+            CSSFilter.blur(
+              child: const CustomScrollView(
+                slivers: [
+                  _AppBarWidget(),
+                  _MainWeatherInfoWidget(),
+                  _DayWeatherInfoWidget(),
+                  _AdditionalWeatherInfoWidget(),
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: 270), // TODO remove
+                  )
+                ],
+              ),
+              value: inProgress ? 2 : 0,
+            ),
+            if (inProgress)
+              const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.lightPink,
+                  backgroundColor: Colors.white,
+                ),
+              ),
+            if (inProgress)
+              ListView(physics: const NeverScrollableScrollPhysics()),
+          ],
+        );
+      },
     );
   }
 }
@@ -144,6 +146,35 @@ class _AppBarWidget extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _LocationBar extends StatelessWidget {
+  const _LocationBar({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 56,
+      color: Colors.transparent,
+      alignment: Alignment.centerLeft,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(width: 28),
+          SvgPicture.asset(
+            AppImages.iconLocation,
+            width: 16,
+          ),
+          const SizedBox(width: 12),
+          Text('Архангельск, Россия',
+              style: GoogleFonts.roboto(
+                textStyle: context.theme.b2,
+                fontWeight: FontWeight.w500,
+              )),
+        ],
       ),
     );
   }

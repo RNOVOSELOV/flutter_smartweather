@@ -43,12 +43,10 @@ void _setupApiRelatesClasses() {
 
 // ONLY FACTORIES
 void _setupBlocks() {
-  if (kDebugMode) {
-    Bloc.observer = SimpleBlocObserver();
-  }
+  Bloc.observer = SimpleBlocObserver();
   sl.registerFactory(() => WeatherBloc(
         geolocationService: sl.get<Geo>(),
         apiService: sl.get<OwmApiService>(),
-        dataService: sl.get<LocalDataProvider>(),
+        dataService: sl.get<LocationRepository>(),
       ));
 }

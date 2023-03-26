@@ -15,6 +15,12 @@ class LocationWeatherDto extends Equatable {
     required this.weather,
   });
 
+  const LocationWeatherDto.initial()
+      : this(
+          location: const LocationDto.initial(),
+          weather: const WeatherDto.initial(),
+        );
+
   LocationWeatherDto copyWith({
     LocationDto? location,
     WeatherDto? weather,

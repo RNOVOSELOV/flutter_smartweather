@@ -48,6 +48,29 @@ class WeatherDto extends Equatable {
     required this.snowThreeHours,
   });
 
+  const WeatherDto.initial()
+      : this(
+    description: 'переменная облачность',
+    icon: '03n',
+    temperature: -6,
+    temperatureFeelsLike: -5,
+    temperatureMin: -10,
+    temperatureMax: -5,
+    pressure: 1007,
+    humidity: 92,
+    visibility: 10000,
+    windSpeed: 1,
+    windDeg: 60,
+    windGust: null,
+    cloudsInPercent: 40,
+    sunriseTime: 1679885702,
+    sunsetTime: 1679932293,
+    rainOneHour: null,
+    rainThreeHours: null,
+    snowOneHour: null,
+    snowThreeHours: null,
+  );
+
   WeatherDto.fromApiResponse({required ApiWeatherResponseDto response})
       : this(
           description: response.weather.first.description,
