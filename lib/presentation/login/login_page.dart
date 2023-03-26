@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weather/data/geolocation/geo.dart';
 import 'package:weather/data/geolocation/geo_error.dart';
-import 'package:weather/data/geolocation/models/location_dto.dart';
+import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/navigation/route_name.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_strings.dart';

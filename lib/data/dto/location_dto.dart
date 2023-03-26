@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:weather/resources/app_strings.dart';
 
 class LocationDto extends Equatable {
   final double longitude;

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:either_dart/either.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:weather/data/geolocation/models/location_dto.dart';
+import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/http/owm_api/api_error_type.dart';
 import 'package:weather/data/http/owm_api/base_api_service.dart';
 import 'package:weather/data/http/owm_api/models/api_error.dart';

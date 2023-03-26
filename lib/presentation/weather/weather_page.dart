@@ -2,7 +2,7 @@ import 'package:css_filter/css_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:weather/data/geolocation/models/location_dto.dart';
+import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/http/owm_api/owm_api_service.dart';
 import 'package:weather/di/service_locator.dart';
 import 'package:weather/resources/app_colors.dart';
