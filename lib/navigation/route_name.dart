@@ -1,9 +1,11 @@
 import 'package:collection/collection.dart';
 
 enum RouteName {
-  splash(route: '/'),
+  splash(route: '/splash'),
+//  splash(route: '/'),
   login(route: '/login'),
-  weather(route: '/weather');
+  weather(route: '/');
+//  weather(route: '/weather');
 
   static RouteName? find(String? name) =>
       values.firstWhereOrNull((routeName) => routeName.route == name);

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weather/data/geolocation/geo.dart';
 import 'package:weather/data/geolocation/geo_error.dart';
-import 'package:weather/data/geolocation/models/location_dto.dart';
+import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/navigation/route_name.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_strings.dart';
@@ -37,34 +37,6 @@ class _LoginPageWidgetState extends State<_LoginPageWidget> {
     super.initState();
     _emailFocusNode = FocusNode();
     _passwordFocusNode = FocusNode();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final geo = Geo();
-      final service = await geo.checkServiceAvailability();
-      print('!!! Service $service');
-      final permission = await geo.checkLocationPermission();
-      print('!!! Permission $permission');
-
-      LocationDto? locationDto;
-      try {
-        final position = await geo.getCurrentPosition();
-        print('!!! Position $position');
-        locationDto = LocationDto.fromPosition(position: position);
-      } on GeoException catch (exception) {
-        exception.error.handleGeoError(context);
-        print('Error: $exception');
-      } on TimeoutException catch (exception) {
-        GeoError.geoTimeoutError.handleGeoError(context);
-        print('Error2: $exception');
-      } catch (err) {
-        GeoError.geoUnknownError.handleGeoError(context);
-        print('Error3: $err');
-      } finally {
-        locationDto ??= LocationDto.initial();
-      }
-      print('!!! Location $locationDto');
-      final location = await geo.getPositionAddress(location: locationDto,);
-      print('NEW location: $location');
-    });
   }
 
   @override

@@ -27,4 +27,7 @@ class AppStrings {
       'Произошла ошибка определения местоположения';
 
   static const String fixButtonLabel = 'Исправить';
+
+  static const String unknownErrorMessage = 'Обнаружена ошибка в работе программы. Наши специалисты уже уведомлены о Вашей проблеме.';
+  static const String invalidApiKey = 'Сервис временно недоступен. Наши специалисты уже восстанавливают работоспособность.';
 }

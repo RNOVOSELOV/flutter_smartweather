@@ -1,41 +1,49 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:weather/resources/app_strings.dart';
 
+part 'location_dto.g.dart';
+
+@JsonSerializable()
 class LocationDto extends Equatable {
   final double longitude;
   final double latitude;
   final String location;
 
-  const LocationDto._(
+  const LocationDto(
       {required this.latitude,
       required this.longitude,
       required this.location});
 
   const LocationDto.initial()
-      : this._(
+      : this(
             latitude: 64.550000,
             longitude: 40.533330,
             location: 'Архангельск, Россия');
 
   LocationDto.fromPosition({required Position position})
-      : this._(
+      : this(
             latitude: position.latitude,
             longitude: position.longitude,
             location:
-                '${AppStrings.geolocationString} - ${AppStrings.latitudeString}: ${(position.latitude * 100).round() / 100}; ${AppStrings.longitudeString}: ${(position.longitude * 100).round() / 100}.');
+                '${(position.latitude * 100).round() / 100}:${(position.longitude * 100).round() / 100}');
 
   LocationDto copyWith({
     double? latitude,
     double? longitude,
     String? location,
   }) {
-    return LocationDto._(
+    return LocationDto(
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       location: location ?? this.location,
     );
   }
+
+  factory LocationDto.fromJson(final Map<String, dynamic> json) =>
+      _$LocationDtoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$LocationDtoToJson(this);
 
   @override
   List<Object?> get props => [latitude, longitude, location];
