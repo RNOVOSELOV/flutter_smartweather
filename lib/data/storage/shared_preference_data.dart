@@ -2,14 +2,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather/data/storage/local_data_provider.dart';
 
 class SharedPreferenceData extends LocalDataProvider {
-  static const _locationKey = "location_key";
+  static const _locationWithWeatherKey = "location_with_weather_key";
 
   @override
-  Future<String?> getLastLocation() => _getItem(_locationKey);
+  Future<String?> getLastLocation() => _getItem(_locationWithWeatherKey);
 
   @override
-  Future<bool> setLastLocation(String? location) =>
-      _setItem(key: _locationKey, item: location);
+  Future<bool> setCurrentLocation(String? location) =>
+      _setItem(key: _locationWithWeatherKey, item: location);
 
   Future<bool> _setItem({
     required final String key,

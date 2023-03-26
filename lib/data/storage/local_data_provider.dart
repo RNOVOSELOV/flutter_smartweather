@@ -1,5 +1,5 @@
 abstract class LocalDataProvider {
-  Future<bool> setLastLocation(final String? location);
+  Future<bool> setCurrentLocation(final String? location);
 
   Future<String?> getLastLocation();
 }
