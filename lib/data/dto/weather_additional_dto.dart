@@ -73,8 +73,8 @@ class WeatherAdditionalDto extends Equatable {
           windGust:
               response.wind.gust != null ? response.wind.gust!.toInt() : null,
           cloudsInPercent: response.clouds.all.toInt(),
-          sunriseTime: response.sys.sunrise.toInt(),
-          sunsetTime: response.sys.sunset.toInt(),
+          sunriseTime: response.sys.sunrise.toInt() + response.timezone,
+          sunsetTime: response.sys.sunset.toInt() + response.timezone,
           rainOneHour: response.rain != null
               ? (response.rain!.oneHour != null
                   ? response.rain!.oneHour!.toInt()
@@ -130,12 +130,12 @@ class WeatherAdditionalDto extends Equatable {
         description: DataConverter.getCloudy(cloudsInPercent),
         iconPath: AppImages.parameterIconCloudy));
     list.add(ParameterDto(
-        value: '',
-        description: DataConverter.getSunTime(sunriseTime),
+        value: DataConverter.getTimeFromUtcSeconds(sunriseTime),
+        description: AppStrings.parameterSunrise,
         iconPath: AppImages.parameterIconSunrise));
     list.add(ParameterDto(
-        value: '',
-        description: DataConverter.getSunTime(sunsetTime),
+        value: DataConverter.getTimeFromUtcSeconds(sunsetTime),
+        description: AppStrings.parameterSunset,
         iconPath: AppImages.parameterIconSunset));
     if (rainOneHour != null) {
       list.add(ParameterDto(

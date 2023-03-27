@@ -1,16 +1,14 @@
 import 'package:css_filter/css_filter.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:weather/data/data_converter.dart';
 import 'package:weather/data/dto/location_dto.dart';
-import 'package:weather/data/dto/location_weather_dto.dart';
 import 'package:weather/data/dto/weather_additional_dto.dart';
 import 'package:weather/data/dto/weather_dto.dart';
 import 'package:weather/di/service_locator.dart';
 import 'package:weather/presentation/weather/block/weather_bloc.dart';
-import 'package:weather/data/dto/parameter_dto.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
 import 'package:weather/resources/app_strings.dart';
@@ -273,7 +271,7 @@ class _DayWeatherInfoWidget extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '20 марта',
+                    '${DateTime.now().day} ${DataConverter.getMonth()}',
                     style: GoogleFonts.roboto(
                       textStyle: context.theme.b2,
                       color: AppColors.textDateColor,
@@ -369,13 +367,13 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.only(left: 24, right: 24, bottom: 38),
-        padding: const EdgeInsets.all(16.0),
         decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(20)),
           color: AppColors.backgroundCardColor,
         ),
         child: ListView.separated(
-            physics: NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16.0),
+            physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemBuilder: (context, index) {
               return Row(
@@ -394,8 +392,6 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
                   SizedBox(
                     width: 80,
                     child: Text(
-                      maxLines: 3,
-overflow: TextOverflow.ellipsis,
                       list.elementAt(index).value,
                       style: GoogleFonts.roboto(
                         textStyle: context.theme.b2,

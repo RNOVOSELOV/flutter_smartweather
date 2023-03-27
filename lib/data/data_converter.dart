@@ -30,9 +30,9 @@ class DataConverter {
     return AppStrings.parameterHighClouds;
   }
 
-  static String getSunTime(int value) {
-    return DateTime.fromMillisecondsSinceEpoch(value * 1000, isUtc: true)
-        .toString();
+  static String getTimeFromUtcSeconds(int value) {
+    final dateTime =  DateTime.fromMillisecondsSinceEpoch(value * 1000, isUtc: true);
+    return '${dateTime.hour}:${dateTime.minute}';
   }
 
   static String getVisibility(int value) {
@@ -67,6 +67,35 @@ class DataConverter {
         return AppStrings.windNW;
       default:
         return AppStrings.windN;
+    }
+  }
+
+  static String getMonth () {
+    switch (DateTime.now().month){
+      case 1:
+        return 'января';
+      case 2:
+        return 'февраля';
+      case 3:
+        return 'марта';
+      case 4:
+        return 'апреля';
+      case 5:
+        return 'мая';
+      case 6:
+        return 'июня';
+      case 7:
+        return 'июля';
+      case 8:
+        return 'августа';
+      case 9:
+        return 'сентября';
+      case 10:
+        return 'октября';
+      case 11:
+        return 'ноября';
+      default:
+        return 'декабря';
     }
   }
 }

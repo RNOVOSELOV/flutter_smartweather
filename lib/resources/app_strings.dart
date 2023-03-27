@@ -55,4 +55,6 @@ class AppStrings {
   static const String parameterLowClouds = 'Переменная облачность';
   static const String parameterMiddleClouds = 'Облачно с прояснениями';
   static const String parameterHighClouds = 'Пасмурно';
+  static const String parameterSunrise = 'Восход солнца';
+  static const String parameterSunset = 'Закат солнца';
 }
