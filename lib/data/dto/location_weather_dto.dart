@@ -3,7 +3,6 @@ import 'package:equatable/equatable.dart';
 import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/dto/weather_additional_dto.dart';
 import 'package:weather/data/dto/weather_dto.dart';
-import 'package:weather/data/http/owm_api/models/api_weather_response_dto.dart';
 
 part 'location_weather_dto.g.dart';
 

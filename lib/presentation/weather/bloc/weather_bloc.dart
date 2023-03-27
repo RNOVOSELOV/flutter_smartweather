@@ -39,17 +39,17 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
       lastLocation = savedData.location;
       emit(WeatherNewDataState(data: savedData));
     }
-    print('!!! 1 $lastLocation');
     await updateCurrentLocationCoordinates(emit);
-    print('!!! 2 $lastLocation');
     await updateWeatherData(lastLocation!, emit);
-    print('!!! 3 $lastLocation');
     await Future.delayed(
       const Duration(milliseconds: 200),
           () {
         emit(WeatherEndLongOperationState());
       },
     );
+
+    final res = await apiDataRepository.getForecast(lastLocation!);
+    print ('@@@ ${res.right}');
   }
 
   FutureOr<void> _onWeatherResend(final WeatherResendQuery event,
