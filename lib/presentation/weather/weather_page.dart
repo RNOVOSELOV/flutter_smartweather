@@ -1,10 +1,17 @@
 import 'package:css_filter/css_filter.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:weather/data/dto/location_dto.dart';
+import 'package:weather/data/dto/location_weather_dto.dart';
+import 'package:weather/data/dto/weather_additional_dto.dart';
+import 'package:weather/data/dto/weather_dto.dart';
 import 'package:weather/di/service_locator.dart';
 import 'package:weather/presentation/weather/block/weather_bloc.dart';
+import 'package:weather/presentation/weather/models/parameter.dart';
+import 'package:weather/presentation/weather/models/weather_parameters.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
 import 'package:weather/resources/app_strings.dart';
@@ -55,51 +62,59 @@ class _WeatherWidget extends StatefulWidget {
 }
 
 class _WeatherWidgetState extends State<_WeatherWidget> {
-  bool inProgress = false;
-
   @override
   Widget build(BuildContext context) {
-    return BlocListener<WeatherBloc, WeatherState>(
-      listener: (context, state) {
-        if (state is WeatherInitialState || state is WeatherStartLongOperationState) {
+    bool inProgress = true;
+    LocationDto? locationData;
+    WeatherDto? weatherData;
+    WeatherAdditionalDto? additionalWeatherData;
+    return BlocBuilder<WeatherBloc, WeatherState>(
+      builder: (context, state) {
+        if (state is WeatherInitialState ||
+            state is WeatherStartLongOperationState) {
           inProgress = true;
         } else if (state is WeatherEndLongOperationState) {
           inProgress = false;
+        } else if (state is WeatherNewDataState) {
+          locationData = state.data.location;
+          weatherData = state.data.weather;
+          additionalWeatherData = state.data.additionalWeather;
         }
-        setState(() {});
-      },
-      child: Stack(
-        children: [
-          CSSFilter.blur(
-            child: const CustomScrollView(
-              slivers: [
-                _AppBarWidget(),
-                _MainWeatherInfoWidget(),
-                _DayWeatherInfoWidget(),
-                _AdditionalWeatherInfoWidget(),
-                SliverToBoxAdapter(
-                  child: SizedBox(height: 270), // TODO remove
-                )
-              ],
-            ),
-            value: inProgress ? 2 : 0,
-          ),
-          if (inProgress)
-            const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.lightPink,
+
+        return Stack(
+          children: [
+            CSSFilter.blur(
+              child: CustomScrollView(
+                slivers: [
+                  _AppBarWidget(
+                      location:
+                          locationData != null ? locationData!.location : ''),
+                  _MainWeatherInfoWidget(weather: weatherData),
+                  _DayWeatherInfoWidget(),
+                  _AdditionalWeatherInfoWidget(data: additionalWeatherData),
+                ],
               ),
+              value: inProgress ? 2 : 0,
             ),
-          if (inProgress)
-            ListView(physics: const NeverScrollableScrollPhysics()),
-        ],
-      ),
+            if (inProgress)
+              const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.lightPink,
+                ),
+              ),
+            if (inProgress)
+              ListView(physics: const NeverScrollableScrollPhysics()),
+          ],
+        );
+      },
     );
   }
 }
 
 class _AppBarWidget extends StatelessWidget {
-  const _AppBarWidget({Key? key}) : super(key: key);
+  const _AppBarWidget({Key? key, required this.location}) : super(key: key);
+
+  final String location;
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +136,7 @@ class _AppBarWidget extends StatelessWidget {
         background: SafeArea(
           child: Column(
             children: [
-              const _LocationBar(),
+              _LocationBar(location: location),
               const Spacer(),
               Stack(
                 children: [
@@ -160,7 +175,9 @@ class _AppBarWidget extends StatelessWidget {
 }
 
 class _LocationBar extends StatelessWidget {
-  const _LocationBar({Key? key}) : super(key: key);
+  const _LocationBar({Key? key, required this.location}) : super(key: key);
+
+  final String location;
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +194,7 @@ class _LocationBar extends StatelessWidget {
             width: 16,
           ),
           const SizedBox(width: 12),
-          Text('Архангельск, Россия',
+          Text(location,
               style: GoogleFonts.roboto(
                 textStyle: context.theme.b2,
                 fontWeight: FontWeight.w500,
@@ -188,55 +205,40 @@ class _LocationBar extends StatelessWidget {
   }
 }
 
-class _MainWeatherInfoWidget extends StatefulWidget {
-  const _MainWeatherInfoWidget({Key? key}) : super(key: key);
+class _MainWeatherInfoWidget extends StatelessWidget {
+  const _MainWeatherInfoWidget({Key? key, required this.weather})
+      : super(key: key);
 
-  @override
-  State<_MainWeatherInfoWidget> createState() => _MainWeatherInfoWidgetState();
-}
-
-class _MainWeatherInfoWidgetState extends State<_MainWeatherInfoWidget> {
-  String temperature = '';
-  String description = '';
-  String minMaxTemperature = '';
+  final WeatherDto? weather;
 
   @override
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
-      child: BlocListener<WeatherBloc, WeatherState>(
-        listener: (context, state) {
-          if (state is WeatherNewDataState) {
-            temperature = '${state.data.weather.temperature}º';
-            description = state.data.weather.description;
-            minMaxTemperature =
-                '${AppStrings.maxTemperatureString} ${state.data.weather.temperatureMax}º ${AppStrings.minTemperatureString} ${state.data.weather.temperatureMin}º';
-            setState(() {});
-          }
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              temperature,
-              style: GoogleFonts.ubuntu(
-                  fontStyle: FontStyle.normal,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 64,
-                  height: 72 / 64,
-                  color: AppColors.textWhiteColor),
-            ),
-            Text(
-              description,
-              style: context.theme.b1,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              minMaxTemperature,
-              style: context.theme.b1,
-            ),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            weather != null ? '${weather!.temperature}º' : '',
+            style: GoogleFonts.ubuntu(
+                fontStyle: FontStyle.normal,
+                fontWeight: FontWeight.w500,
+                fontSize: 64,
+                height: 72 / 64,
+                color: AppColors.textWhiteColor),
+          ),
+          Text(
+            weather != null ? weather!.description : '',
+            style: context.theme.b1,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            weather != null
+                ? '${AppStrings.maxTemperatureString} ${weather!.temperatureMax}º ${AppStrings.minTemperatureString} ${weather!.temperatureMin}º'
+                : '',
+            style: context.theme.b1,
+          ),
+        ],
       ),
     );
   }
@@ -353,10 +355,19 @@ class _CartInDayListWidget extends StatelessWidget {
 }
 
 class _AdditionalWeatherInfoWidget extends StatelessWidget {
-  const _AdditionalWeatherInfoWidget({Key? key}) : super(key: key);
+  const _AdditionalWeatherInfoWidget({Key? key, this.data}) : super(key: key);
+
+  final WeatherAdditionalDto? data;
 
   @override
   Widget build(BuildContext context) {
+    if (data == null) {
+      return const SliverToBoxAdapter(
+        child: SizedBox.shrink(),
+      );
+    }
+    WeatherParameters parameters =
+        WeatherParameters.fromRepositoryDto(data: data!);
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.only(left: 24, right: 24, bottom: 38),
@@ -365,12 +376,12 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(20)),
           color: AppColors.backgroundCardColor,
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _AdditionalInfoValuesColumnWidget(),
-            _AdditionalInfoDescriptionColumnWidget(),
+            _AdditionalInfoValuesColumnWidget(parameters: parameters),
+            const SizedBox(width: 16,),
+            _AdditionalInfoDescriptionColumnWidget(parameters: parameters),
           ],
         ),
       ),
@@ -379,7 +390,10 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
 }
 
 class _AdditionalInfoValuesColumnWidget extends StatelessWidget {
-  const _AdditionalInfoValuesColumnWidget({Key? key}) : super(key: key);
+  const _AdditionalInfoValuesColumnWidget({Key? key, required this.parameters})
+      : super(key: key);
+
+  final WeatherParameters parameters;
 
   @override
   Widget build(BuildContext context) {
@@ -387,26 +401,11 @@ class _AdditionalInfoValuesColumnWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SvgPicture.asset(
-              AppImages.iconWind,
-              width: 24,
-              height: 24,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '2 ${AppStrings.windSpeedString}',
-              style: GoogleFonts.roboto(
-                textStyle: context.theme.b2,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+        _AdditionalValue(parameter: parameters.temperatureFeelsLike),
+        const SizedBox(
+          height: 16,
         ),
+        _AdditionalValue(parameter: parameters.wind),
         const SizedBox(
           height: 16,
         ),
@@ -416,7 +415,7 @@ class _AdditionalInfoValuesColumnWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SvgPicture.asset(
-              AppImages.iconDrop,
+              AppImages.parameterIconDrop,
               width: 24,
               height: 24,
             ),
@@ -435,8 +434,42 @@ class _AdditionalInfoValuesColumnWidget extends StatelessWidget {
   }
 }
 
+class _AdditionalValue extends StatelessWidget {
+  const _AdditionalValue({Key? key, required this.parameter}) : super(key: key);
+
+  final Parameter parameter;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        SvgPicture.asset(
+          parameter.iconPath,
+          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+          width: 24,
+          height: 24,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          parameter.value,
+          style: GoogleFonts.roboto(
+            textStyle: context.theme.b2,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _AdditionalInfoDescriptionColumnWidget extends StatelessWidget {
-  const _AdditionalInfoDescriptionColumnWidget({Key? key}) : super(key: key);
+  const _AdditionalInfoDescriptionColumnWidget(
+      {Key? key, required this.parameters})
+      : super(key: key);
+  final WeatherParameters parameters;
 
   @override
   Widget build(BuildContext context) {
@@ -494,12 +527,4 @@ class _AdditionalInfoDescriptionColumnWidget extends StatelessWidget {
       final location = await geo.getPositionAddress(location: locationDto,);
       print('NEW location: $location');
 
-
-          final value = sl.get<OwmApiService>();
-    value.getWeather(location: LocationDto.initial()).then((value) {
-      print('${value.isLeft} ${value.isRight}');
-      debugPrint(value.left.toString());
-      debugPrint('${value.left.errorType.code} ${value.left.cod}');
-      debugPrint('${value.left.errorType.message} ${value.left.message}');
-    });
  */

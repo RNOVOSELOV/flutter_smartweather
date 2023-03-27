@@ -28,6 +28,30 @@ class AppStrings {
 
   static const String fixButtonLabel = 'Исправить';
 
-  static const String unknownErrorMessage = 'Обнаружена ошибка в работе программы. Наши специалисты уже уведомлены о Вашей проблеме.';
-  static const String invalidApiKey = 'Сервис временно недоступен. Наши специалисты уже восстанавливают работоспособность.';
+  static const String unknownErrorMessage =
+      'Обнаружена ошибка в работе программы. Наши специалисты уже уведомлены о Вашей проблеме.';
+  static const String invalidApiKey =
+      'Сервис временно недоступен. Наши специалисты уже восстанавливают работоспособность.';
+
+  static const String windNE = 'Ветер северо-восточный';
+  static const String windE = 'Ветер восточный';
+  static const String windSE = 'Ветер юго-восточный';
+  static const String windS = 'Ветер южный';
+  static const String windSW = 'Ветер юго-западный';
+  static const String windW = 'Ветер западный';
+  static const String windNW = 'Ветер северо-западный';
+  static const String windN = 'Ветер северный';
+
+  static const String parameterTemperature = 'Температура по ощущению';
+  static const String parameterPressure = 'Атмосферное давление на уровне моря';
+  static const String parameterBadHumidity = 'Пониженная влажность';
+  static const String parameterHighHumidity = 'Повышенная влажность';
+  static const String parameterHumidity = 'Влажность в норме';
+  static const String parameterBadVisibility = 'Плохая видимость';
+  static const String parameterVisibility = 'Хорошая видимость';
+  static const String parameterWindGust = 'Порывы ветра';
+  static const String parameterNoClouds = 'Ясно';
+  static const String parameterLowClouds = 'Переменная облачность';
+  static const String parameterMiddleClouds = 'Облачно с прояснениями';
+  static const String parameterHighClouds = 'Пасмурно';
 }

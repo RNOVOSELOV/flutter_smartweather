@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather/data/storage/local_data_provider.dart';
 
-class SharedPreferenceData extends LocalDataProvider {
+class SharedPreferenceData implements LocalDataProvider {
   static const _locationWithWeatherKey = "location_with_weather_key";
 
   @override
