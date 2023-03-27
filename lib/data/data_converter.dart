@@ -1,7 +1,7 @@
 import 'package:weather/resources/app_strings.dart';
 
-class Helper {
-  Helper._();
+class DataConverter {
+  DataConverter._();
 
   static String getHumidity(int value) {
     if (value < 40) {
@@ -10,6 +10,13 @@ class Helper {
       return AppStrings.parameterHighHumidity;
     }
     return AppStrings.parameterHumidity;
+  }
+
+  static String getPressure(int value) {
+    if (value < 1013.25) {
+      return AppStrings.parameterPressureLow;
+    }
+    return AppStrings.parameterPressureHigh;
   }
 
   static String getCloudy(int value) {
@@ -23,8 +30,15 @@ class Helper {
     return AppStrings.parameterHighClouds;
   }
 
-  static String getSunTime (int value) {
-    return DateTime.fromMillisecondsSinceEpoch(value * 1000, isUtc: true).toString();
+  static String getSunTime(int value) {
+    return DateTime.fromMillisecondsSinceEpoch(value * 1000, isUtc: true)
+        .toString();
+  }
+
+  static String getVisibility(int value) {
+    return value < 500
+        ? AppStrings.parameterBadVisibility
+        : AppStrings.parameterVisibility;
   }
 
   static String getWindDirection(int angle) {

@@ -43,7 +43,8 @@ class AppStrings {
   static const String windN = 'Ветер северный';
 
   static const String parameterTemperature = 'Температура по ощущению';
-  static const String parameterPressure = 'Атмосферное давление на уровне моря';
+  static const String parameterPressureLow = 'Пониженное давление';
+  static const String parameterPressureHigh = 'Повышенное давление';
   static const String parameterBadHumidity = 'Пониженная влажность';
   static const String parameterHighHumidity = 'Повышенная влажность';
   static const String parameterHumidity = 'Влажность в норме';

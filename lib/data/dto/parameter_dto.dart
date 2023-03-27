@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 
-class Parameter {
+class ParameterDto {
   final String value;
   final String description;
   final String iconPath;
 
-  Parameter(
+  ParameterDto(
       {required this.value, required this.description, required this.iconPath});
 }
+
+
+

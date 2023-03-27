@@ -10,8 +10,7 @@ import 'package:weather/data/dto/weather_additional_dto.dart';
 import 'package:weather/data/dto/weather_dto.dart';
 import 'package:weather/di/service_locator.dart';
 import 'package:weather/presentation/weather/block/weather_bloc.dart';
-import 'package:weather/presentation/weather/models/parameter.dart';
-import 'package:weather/presentation/weather/models/weather_parameters.dart';
+import 'package:weather/data/dto/parameter_dto.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
 import 'package:weather/resources/app_strings.dart';
@@ -366,8 +365,7 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
         child: SizedBox.shrink(),
       );
     }
-    WeatherParameters parameters =
-        WeatherParameters.fromRepositoryDto(data: data!);
+    final list = data!.toParametersList();
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.only(left: 24, right: 24, bottom: 38),
@@ -376,128 +374,84 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(20)),
           color: AppColors.backgroundCardColor,
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            _AdditionalInfoValuesColumnWidget(parameters: parameters),
-            const SizedBox(width: 16,),
-            _AdditionalInfoDescriptionColumnWidget(parameters: parameters),
-          ],
-        ),
+        child: ListView.separated(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SvgPicture.asset(
+                    list.elementAt(index).iconPath,
+                    colorFilter:
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                    width: 24,
+                    height: 24,
+                  ),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 80,
+                    child: Text(
+                      maxLines: 3,
+overflow: TextOverflow.ellipsis,
+                      list.elementAt(index).value,
+                      style: GoogleFonts.roboto(
+                        textStyle: context.theme.b2,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    list.elementAt(index).description,
+                    style: GoogleFonts.roboto(
+                        textStyle: context.theme.b2,
+                        color: AppColors.textAdditionalColor),
+                  ),
+                ],
+              );
+            },
+            separatorBuilder: (context, index) => const SizedBox(height: 16),
+            itemCount: list.length),
       ),
     );
   }
 }
 
-class _AdditionalInfoValuesColumnWidget extends StatelessWidget {
-  const _AdditionalInfoValuesColumnWidget({Key? key, required this.parameters})
-      : super(key: key);
-
-  final WeatherParameters parameters;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _AdditionalValue(parameter: parameters.temperatureFeelsLike),
-        const SizedBox(
-          height: 16,
-        ),
-        _AdditionalValue(parameter: parameters.wind),
-        const SizedBox(
-          height: 16,
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SvgPicture.asset(
-              AppImages.parameterIconDrop,
-              width: 24,
-              height: 24,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '100 %',
-              style: GoogleFonts.roboto(
-                textStyle: context.theme.b2,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _AdditionalValue extends StatelessWidget {
-  const _AdditionalValue({Key? key, required this.parameter}) : super(key: key);
-
-  final Parameter parameter;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        SvgPicture.asset(
-          parameter.iconPath,
-          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-          width: 24,
-          height: 24,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          parameter.value,
-          style: GoogleFonts.roboto(
-            textStyle: context.theme.b2,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _AdditionalInfoDescriptionColumnWidget extends StatelessWidget {
-  const _AdditionalInfoDescriptionColumnWidget(
-      {Key? key, required this.parameters})
-      : super(key: key);
-  final WeatherParameters parameters;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Ветер северо-восточный',
-          style: GoogleFonts.roboto(
-            textStyle: context.theme.b2,
-            color: AppColors.textAdditionalColor,
-          ),
-        ),
-        const SizedBox(
-          height: 16,
-        ),
-        Text(
-          'Высокая влажность',
-          style: GoogleFonts.roboto(
-            textStyle: context.theme.b2,
-            color: AppColors.textAdditionalColor,
-          ),
-        ),
-      ],
-    );
-  }
-}
+// class _AdditionalInfoDescriptionColumnWidget extends StatelessWidget {
+//   const _AdditionalInfoDescriptionColumnWidget(
+//       {Key? key, required this.parameters})
+//       : super(key: key);
+//   final WeatherParameters parameters;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       mainAxisSize: MainAxisSize.min,
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           'Ветер северо-восточный',
+//           style: GoogleFonts.roboto(
+//             textStyle: context.theme.b2,
+//             color: AppColors.textAdditionalColor,
+//           ),
+//         ),
+//         const SizedBox(
+//           height: 16,
+//         ),
+//         Text(
+//           'Высокая влажность',
+//           style: GoogleFonts.roboto(
+//             textStyle: context.theme.b2,
+//             color: AppColors.textAdditionalColor,
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
 
 /*
       final geo = Geo();
