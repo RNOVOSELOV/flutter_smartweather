@@ -1,7 +1,11 @@
 import 'package:weather/resources/app_strings.dart';
 
 enum ApiErrorType {
-  invalidApiKey(code: 401, message: AppStrings.invalidApiKey, canResend: true),
+  nothingToGeocode(
+      code: 400,
+      message: AppStrings.incorrectRequestCoordinateAbsent,
+      canResend: false),
+  invalidApiKey(code: 401, message: AppStrings.invalidApiKey, canResend: false),
   incorrectRequest(
       code: 404, message: AppStrings.incorrectRequest, canResend: false),
   toMoreRequests(

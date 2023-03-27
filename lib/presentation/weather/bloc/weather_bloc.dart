@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/dto/location_weather_dto.dart';
 import 'package:weather/data/geolocation/geo.dart';
+import 'package:weather/data/geolocation/geo_error.dart';
 import 'package:weather/data/http/repositories/api_repository.dart';
 import 'package:weather/data/storage/repositories/location_repository.dart';
 
@@ -28,45 +29,43 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     on<WeatherResendQuery>(_onWeatherResend);
   }
 
-  FutureOr<void> _onWeatherPageLoaded(
-    final WeatherPageLoaded event,
-    final Emitter<WeatherState> emit,
-  ) async {
+  FutureOr<void> _onWeatherPageLoaded(final WeatherPageLoaded event,
+      final Emitter<WeatherState> emit,) async {
     emit(WeatherStartLongOperationState());
-    LocationDto location;
     final savedData = await locationDataRepository.getItem();
     if (savedData == null) {
-      location = const LocationDto.initial();
+      lastLocation = const LocationDto.initial();
     } else {
-      location = savedData.location;
+      lastLocation = savedData.location;
       emit(WeatherNewDataState(data: savedData));
     }
-    lastLocation = location;
-    await updateWeatherData(location, emit);
+    print('!!! 1 $lastLocation');
+    await updateCurrentLocationCoordinates(emit);
+    print('!!! 2 $lastLocation');
+    await updateWeatherData(lastLocation!, emit);
+    print('!!! 3 $lastLocation');
     await Future.delayed(
       const Duration(milliseconds: 200),
-      () {
+          () {
         emit(WeatherEndLongOperationState());
       },
     );
   }
 
-  FutureOr<void> _onWeatherResend(
-      final WeatherResendQuery event, final Emitter<WeatherState> emit) async {
+  FutureOr<void> _onWeatherResend(final WeatherResendQuery event,
+      final Emitter<WeatherState> emit) async {
     emit(WeatherStartLongOperationState());
     await updateWeatherData(lastLocation!, emit);
     await Future.delayed(
       const Duration(milliseconds: 200),
-      () {
+          () {
         emit(WeatherEndLongOperationState());
       },
     );
   }
 
-  Future<void> updateWeatherData(
-    final LocationDto location,
-    final Emitter<WeatherState> emit,
-  ) async {
+  Future<void> updateWeatherData(final LocationDto location,
+      final Emitter<WeatherState> emit,) async {
     final result = await apiDataRepository.getWeather(location);
     if (result.isRight) {
       final apiData = result.right;
@@ -74,8 +73,25 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
       await locationDataRepository.setItem(apiData);
     } else {
       final apiError = result.left.errorType;
-      emit(WeatherShowError(
+      emit(WeatherShowApiError(
           message: apiError.message, canResend: apiError.canResend));
+    }
+  }
+
+  // TODO create GeoRepository, move error handling logic to it and return Either<GeoError, LocationDto>
+  Future<void> updateCurrentLocationCoordinates(
+      final Emitter<WeatherState> emit) async {
+    try {
+      final position = await geolocationService.getCurrentPosition();
+      final currLocation = LocationDto.fromPosition(position: position);
+      lastLocation =
+      await geolocationService.getPositionAddress(location: currLocation);
+    } on GeoException catch (exception) {
+      emit(WeatherShowGeoError(error: exception.error));
+    } on TimeoutException catch (exception) {
+      emit(const WeatherShowGeoError(error: GeoError.geoTimeoutError));
+    } catch (err) {
+      emit(const WeatherShowGeoError(error: GeoError.geoUnknownError));
     }
   }
 }

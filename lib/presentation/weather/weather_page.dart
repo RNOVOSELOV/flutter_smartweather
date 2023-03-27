@@ -8,7 +8,7 @@ import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/dto/weather_additional_dto.dart';
 import 'package:weather/data/dto/weather_dto.dart';
 import 'package:weather/di/service_locator.dart';
-import 'package:weather/presentation/weather/block/weather_bloc.dart';
+import 'package:weather/presentation/weather/bloc/weather_bloc.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
 import 'package:weather/resources/app_strings.dart';
@@ -34,8 +34,10 @@ class _WeatherPageWidget extends StatelessWidget {
     return Scaffold(
       body: BlocListener<WeatherBloc, WeatherState>(
         listener: (context, state) {
-          if (state is WeatherShowError) {
+          if (state is WeatherShowApiError) {
             showError(context, state.message, state.canResend);
+          } else if (state is WeatherShowGeoError) {
+            state.error.handleGeoError(context);
           }
         },
         child: Container(
@@ -99,7 +101,7 @@ class _WeatherPageWidget extends StatelessWidget {
         ],
       ),
       backgroundColor: AppColors.gunMetalColor,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 5),
       elevation: 4,
       behavior: SnackBarBehavior.floating,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -475,40 +477,6 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
   }
 }
 
-// class _AdditionalInfoDescriptionColumnWidget extends StatelessWidget {
-//   const _AdditionalInfoDescriptionColumnWidget(
-//       {Key? key, required this.parameters})
-//       : super(key: key);
-//   final WeatherParameters parameters;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       mainAxisSize: MainAxisSize.min,
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           'Ветер северо-восточный',
-//           style: GoogleFonts.roboto(
-//             textStyle: context.theme.b2,
-//             color: AppColors.textAdditionalColor,
-//           ),
-//         ),
-//         const SizedBox(
-//           height: 16,
-//         ),
-//         Text(
-//           'Высокая влажность',
-//           style: GoogleFonts.roboto(
-//             textStyle: context.theme.b2,
-//             color: AppColors.textAdditionalColor,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-
 /*
       final geo = Geo();
       final service = await geo.checkServiceAvailability();
@@ -516,25 +484,6 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
       final permission = await geo.checkLocationPermission();
       print('!!! Permission $permission');
 
-      LocationDto? locationDto;
-      try {
-        final position = await geo.getCurrentPosition();
-        print('!!! Position $position');
-        locationDto = LocationDto.fromPosition(position: position);
-      } on GeoException catch (exception) {
-        exception.error.handleGeoError(context);
-        print('Error: $exception');
-      } on TimeoutException catch (exception) {
-        GeoError.geoTimeoutError.handleGeoError(context);
-        print('Error2: $exception');
-      } catch (err) {
-        GeoError.geoUnknownError.handleGeoError(context);
-        print('Error3: $err');
-      } finally {
-        locationDto ??= LocationDto.initial();
-      }
-      print('!!! Location $locationDto');
-      final location = await geo.getPositionAddress(location: locationDto,);
-      print('NEW location: $location');
+
 
  */
