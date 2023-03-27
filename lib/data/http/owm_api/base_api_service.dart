@@ -13,6 +13,7 @@ class BaseApiService {
     } catch (e) {
 //  TODO add response data to crashlytics error notification in future version
 //  debugPrint('Location: ${e.location} RESPONSE: ${e.response}');
+//    print('ERROR: $e ${e.runtimeType} ${e.toString()}');
       return Left(_getApiError(error: e));
     }
   }

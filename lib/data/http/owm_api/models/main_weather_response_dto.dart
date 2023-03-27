@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 
 part 'main_weather_response_dto.g.dart';
 
-@JsonSerializable(fieldRename: FieldRename.kebab)
+@JsonSerializable(fieldRename: FieldRename.snake)
 class MainWeatherResponseDto extends Equatable {
   final num temp;
   final num feelsLike;

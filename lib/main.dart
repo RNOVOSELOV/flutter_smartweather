@@ -7,9 +7,6 @@ import 'package:weather/theme/light_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-//  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-//    statusBarColor: Colors.transparent,
-//  ));
   await dotenv.load(fileName: '.env');
   initServiceLocator();
   runApp(const MyApp());
