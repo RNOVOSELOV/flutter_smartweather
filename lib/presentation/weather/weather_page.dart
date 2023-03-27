@@ -32,22 +32,82 @@ class _WeatherPageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppColors.backgroundTopGradientColor,
-              AppColors.backgroundEndGradientColor
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      body: BlocListener<WeatherBloc, WeatherState>(
+        listener: (context, state) {
+          if (state is WeatherShowError) {
+            showError(context, state.message, state.canResend);
+          }
+        },
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.backgroundTopGradientColor,
+                AppColors.backgroundEndGradientColor
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
+          child: const _WeatherWidget(),
         ),
-        child: const _WeatherWidget(),
       ),
     );
+  }
+
+  void showError(BuildContext context, String message, bool resend) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: context.theme.b2,
+            ),
+          ),
+          if (resend)
+            const SizedBox(
+              width: 12,
+            ),
+          if (resend)
+            ElevatedButton(
+                onPressed: () =>
+                    context.read<WeatherBloc>().add(const WeatherResendQuery()),
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  padding: const EdgeInsets.all(4),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: Text(
+                    AppStrings.fixButtonLabel,
+                    style: TextStyle(
+                      fontStyle: FontStyle.normal,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 15,
+                      height: 22 / 15,
+                      color: AppColors.textWhiteColor,
+                    ),
+                  ),
+                )),
+        ],
+      ),
+      backgroundColor: AppColors.gunMetalColor,
+      duration: const Duration(seconds: 3),
+      elevation: 4,
+      behavior: SnackBarBehavior.floating,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(12), topRight: Radius.circular(12))),
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+    ));
   }
 }
 
@@ -91,7 +151,7 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
                   _AdditionalWeatherInfoWidget(data: additionalWeatherData),
                 ],
               ),
-              value: inProgress ? 2 : 0,
+              value: inProgress ? 1 : 0,
             ),
             if (inProgress)
               const Center(

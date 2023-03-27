@@ -4,9 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/dto/location_weather_dto.dart';
-
 import 'package:weather/data/geolocation/geo.dart';
-
 import 'package:weather/data/http/repositories/api_repository.dart';
 import 'package:weather/data/storage/repositories/location_repository.dart';
 
@@ -19,45 +17,65 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
   final ApiRepository apiDataRepository;
   final LocationRepository locationDataRepository;
 
+  LocationDto? lastLocation;
+
   WeatherBloc({
     required this.geolocationService,
     required this.apiDataRepository,
     required this.locationDataRepository,
   }) : super(WeatherInitialState()) {
     on<WeatherPageLoaded>(_onWeatherPageLoaded);
+    on<WeatherResendQuery>(_onWeatherResend);
   }
 
   FutureOr<void> _onWeatherPageLoaded(
     final WeatherPageLoaded event,
     final Emitter<WeatherState> emit,
   ) async {
-    LocationDto location = const LocationDto.initial();
     emit(WeatherStartLongOperationState());
-    final result = await apiDataRepository.getWeather(location);
-    LocationWeatherDto data = result.right;
-
-    emit(WeatherNewDataState(data: data));
-
+    LocationDto location;
+    final savedData = await locationDataRepository.getItem();
+    if (savedData == null) {
+      location = const LocationDto.initial();
+    } else {
+      location = savedData.location;
+      emit(WeatherNewDataState(data: savedData));
+    }
+    lastLocation = location;
+    await updateWeatherData(location, emit);
     await Future.delayed(
-      const Duration(seconds: 1),
+      const Duration(milliseconds: 200),
       () {
         emit(WeatherEndLongOperationState());
       },
     );
-/*
-      print('${value.isLeft} ${value.isRight}');
-      debugPrint(value.left.toString());
-      debugPrint('${value.left.errorType.code} ${value.left.cod}');
-      debugPrint('${value.left.errorType.message} ${value.left.message}');
-*/
+  }
 
-    //final data = await dataService.getItem();
-    //
-    // await Future.delayed(
-    //   const Duration(seconds: 5),
-    //       () {
-    //     emit(const WeatherNewDataState(data: LocationWeatherDto.initial()));
-    //   },
-    // );
+  FutureOr<void> _onWeatherResend(
+      final WeatherResendQuery event, final Emitter<WeatherState> emit) async {
+    emit(WeatherStartLongOperationState());
+    await updateWeatherData(lastLocation!, emit);
+    await Future.delayed(
+      const Duration(milliseconds: 200),
+      () {
+        emit(WeatherEndLongOperationState());
+      },
+    );
+  }
+
+  Future<void> updateWeatherData(
+    final LocationDto location,
+    final Emitter<WeatherState> emit,
+  ) async {
+    final result = await apiDataRepository.getWeather(location);
+    if (result.isRight) {
+      final apiData = result.right;
+      emit(WeatherNewDataState(data: apiData));
+      await locationDataRepository.setItem(apiData);
+    } else {
+      final apiError = result.left.errorType;
+      emit(WeatherShowError(
+          message: apiError.message, canResend: apiError.canResend));
+    }
   }
 }
