@@ -9,7 +9,12 @@ class WeatherInitialState extends WeatherState {
   List<Object> get props => [];
 }
 
-class WeatherInProgressState extends WeatherState {
+class WeatherStartLongOperationState extends WeatherState {
+  @override
+  List<Object?> get props => [];
+}
+
+class WeatherEndLongOperationState extends WeatherState {
   @override
   List<Object?> get props => [];
 }

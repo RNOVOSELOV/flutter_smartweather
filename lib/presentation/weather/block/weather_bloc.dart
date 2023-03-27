@@ -28,11 +28,21 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     final WeatherPageLoaded event,
     final Emitter<WeatherState> emit,
   ) async {
+    emit(WeatherStartLongOperationState());
+    emit (const WeatherNewDataState(data: LocationWeatherDto.initial()));
+    emit(WeatherEndLongOperationState());
     final data = await dataService.getItem();
-
-    await Future.delayed(
-      const Duration(seconds: 5),
-      () => emit(WeatherNewDataState(data: LocationWeatherDto.initial())),
-    );
+    // await Future.delayed(
+    //   const Duration(seconds: 8),
+    //   () {
+    //     emit(WeatherEndLongOperationState());
+    //   },
+    // );
+    // await Future.delayed(
+    //   const Duration(seconds: 5),
+    //       () {
+    //     emit(const WeatherNewDataState(data: LocationWeatherDto.initial()));
+    //   },
+    // );
   }
 }

@@ -47,45 +47,53 @@ class _WeatherPageWidget extends StatelessWidget {
   }
 }
 
-class _WeatherWidget extends StatelessWidget {
+class _WeatherWidget extends StatefulWidget {
   const _WeatherWidget({Key? key}) : super(key: key);
 
   @override
+  State<_WeatherWidget> createState() => _WeatherWidgetState();
+}
+
+class _WeatherWidgetState extends State<_WeatherWidget> {
+  bool inProgress = false;
+
+  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WeatherBloc, WeatherState>(
-      builder: (context, state) {
-        bool inProgress = false;
-        if (state is WeatherInitialState || state is WeatherInProgressState) {
+    return BlocListener<WeatherBloc, WeatherState>(
+      listener: (context, state) {
+        if (state is WeatherInitialState || state is WeatherStartLongOperationState) {
           inProgress = true;
+        } else if (state is WeatherEndLongOperationState) {
+          inProgress = false;
         }
-        return Stack(
-          children: [
-            CSSFilter.blur(
-              child: const CustomScrollView(
-                slivers: [
-                  _AppBarWidget(),
-                  _MainWeatherInfoWidget(),
-                  _DayWeatherInfoWidget(),
-                  _AdditionalWeatherInfoWidget(),
-                  SliverToBoxAdapter(
-                    child: SizedBox(height: 270), // TODO remove
-                  )
-                ],
-              ),
-              value: inProgress ? 2 : 0,
-            ),
-            if (inProgress)
-              const Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.lightPink,
-                  backgroundColor: Colors.white,
-                ),
-              ),
-            if (inProgress)
-              ListView(physics: const NeverScrollableScrollPhysics()),
-          ],
-        );
+        setState(() {});
       },
+      child: Stack(
+        children: [
+          CSSFilter.blur(
+            child: const CustomScrollView(
+              slivers: [
+                _AppBarWidget(),
+                _MainWeatherInfoWidget(),
+                _DayWeatherInfoWidget(),
+                _AdditionalWeatherInfoWidget(),
+                SliverToBoxAdapter(
+                  child: SizedBox(height: 270), // TODO remove
+                )
+              ],
+            ),
+            value: inProgress ? 2 : 0,
+          ),
+          if (inProgress)
+            const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.lightPink,
+              ),
+            ),
+          if (inProgress)
+            ListView(physics: const NeverScrollableScrollPhysics()),
+        ],
+      ),
     );
   }
 }
@@ -180,35 +188,55 @@ class _LocationBar extends StatelessWidget {
   }
 }
 
-class _MainWeatherInfoWidget extends StatelessWidget {
+class _MainWeatherInfoWidget extends StatefulWidget {
   const _MainWeatherInfoWidget({Key? key}) : super(key: key);
+
+  @override
+  State<_MainWeatherInfoWidget> createState() => _MainWeatherInfoWidgetState();
+}
+
+class _MainWeatherInfoWidgetState extends State<_MainWeatherInfoWidget> {
+  String temperature = '';
+  String description = '';
+  String minMaxTemperature = '';
 
   @override
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '27º',
-            style: GoogleFonts.ubuntu(
-                fontStyle: FontStyle.normal,
-                fontWeight: FontWeight.w500,
-                fontSize: 64,
-                height: 72 / 64,
-                color: AppColors.textWhiteColor),
-          ),
-          Text(
-            'Ясно',
-            style: context.theme.b1,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${AppStrings.maxTemperatureString} 31º ${AppStrings.minTemperatureString} 25º',
-            style: context.theme.b1,
-          ),
-        ],
+      child: BlocListener<WeatherBloc, WeatherState>(
+        listener: (context, state) {
+          if (state is WeatherNewDataState) {
+            temperature = '${state.data.weather.temperature}º';
+            description = state.data.weather.description;
+            minMaxTemperature =
+                '${AppStrings.maxTemperatureString} ${state.data.weather.temperatureMax}º ${AppStrings.minTemperatureString} ${state.data.weather.temperatureMin}º';
+            setState(() {});
+          }
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              temperature,
+              style: GoogleFonts.ubuntu(
+                  fontStyle: FontStyle.normal,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 64,
+                  height: 72 / 64,
+                  color: AppColors.textWhiteColor),
+            ),
+            Text(
+              description,
+              style: context.theme.b1,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              minMaxTemperature,
+              style: context.theme.b1,
+            ),
+          ],
+        ),
       ),
     );
   }
