@@ -3,10 +3,15 @@ class AppImages {
 
   static const String logo = "assets/images/logo.svg";
 
+  static const String bigIconCloud = 'assets/weather_icons/big_cloud.png';
+  static const String bigIconClouds = 'assets/weather_icons/big_clouds.png';
   static const String bigIconRain = "assets/weather_icons/big_rain.png";
+  static const String bigIconLowRain = "assets/weather_icons/big_low_rain.png";
   static const String bigIconRainfall = "assets/weather_icons/big_rainfall.png";
   static const String bigIconSnow = "assets/weather_icons/big_snow.png";
   static const String bigIconSun = "assets/weather_icons/big_sun.png";
+  static const String bigIconSunWithCloud =
+      "assets/weather_icons/big_sun_with_cloud.png";
   static const String bigIconSunWithRain =
       "assets/weather_icons/big_sun_with_rain.png";
   static const String bigIconThunderstorm =

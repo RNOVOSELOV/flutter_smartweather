@@ -156,8 +156,10 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
               child: CustomScrollView(
                 slivers: [
                   _AppBarWidget(
-                      location:
-                          locationData != null ? locationData!.location : ''),
+                    location:
+                        locationData != null ? locationData!.location : '',
+                    imageId: weatherData != null ? weatherData!.id : 801,
+                  ),
                   _MainWeatherInfoWidget(weather: weatherData),
                   _DayWeatherInfoWidget(forecasts: forecasts),
                   _AdditionalWeatherInfoWidget(data: additionalWeatherData),
@@ -181,8 +183,12 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
 }
 
 class _AppBarWidget extends StatelessWidget {
-  const _AppBarWidget({Key? key, required this.location}) : super(key: key);
-
+  const _AppBarWidget({
+    Key? key,
+    required this.location,
+    required this.imageId,
+  }) : super(key: key);
+  final int imageId;
   final String location;
 
   @override
@@ -227,7 +233,7 @@ class _AppBarWidget extends StatelessWidget {
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: Image.asset(
-                      AppImages.bigIconSun,
+                      DataConverter.getBigWeatherIcon(imageId),
                       height: 180,
                       width: 180,
                     ),

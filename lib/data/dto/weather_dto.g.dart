@@ -12,10 +12,12 @@ WeatherDto _$WeatherDtoFromJson(Map<String, dynamic> json) => WeatherDto(
       temperature: json['temperature'] as int,
       temperatureMin: json['temperatureMin'] as int,
       temperatureMax: json['temperatureMax'] as int,
+      id: json['id'] as int,
     );
 
 Map<String, dynamic> _$WeatherDtoToJson(WeatherDto instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'description': instance.description,
       'icon': instance.icon,
       'temperature': instance.temperature,
