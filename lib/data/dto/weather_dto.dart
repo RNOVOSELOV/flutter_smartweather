@@ -24,7 +24,7 @@ class WeatherDto extends Equatable {
 
   const WeatherDto.initial()
       : this(
-          id: 800,
+          id: 801,
           description: 'переменная облачность',
           icon: '03n',
           temperature: -6,

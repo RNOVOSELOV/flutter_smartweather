@@ -141,9 +141,11 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
         if (state is WeatherInitialState ||
             state is WeatherStartLongOperationState) {
           inProgress = true;
-        } else if (state is WeatherEndLongOperationState) {
+        }
+        if (state is WeatherEndLongOperationState) {
           inProgress = false;
-        } else if (state is WeatherNewDataState) {
+        }
+        if (state is WeatherNewDataState) {
           locationData = state.data.location;
           weatherData = state.data.weather;
           additionalWeatherData = state.data.additionalWeather;
