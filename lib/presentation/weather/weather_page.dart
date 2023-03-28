@@ -1,9 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:css_filter/css_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weather/data/data_converter.dart';
+import 'package:weather/data/dto/forecast_dto.dart';
 import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/dto/weather_additional_dto.dart';
 import 'package:weather/data/dto/weather_dto.dart';
@@ -32,28 +34,34 @@ class _WeatherPageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocListener<WeatherBloc, WeatherState>(
-        listener: (context, state) {
-          if (state is WeatherShowApiError) {
-            showError(context, state.message, state.canResend);
-          } else if (state is WeatherShowGeoError) {
-            state.error.handleGeoError(context);
-          }
+      body: RefreshIndicator(
+        color: AppColors.lightPink,
+        onRefresh: () async {
+          context.read<WeatherBloc>().add(const WeatherResendQuery());
         },
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.backgroundTopGradientColor,
-                AppColors.backgroundEndGradientColor
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+        child: BlocListener<WeatherBloc, WeatherState>(
+          listener: (context, state) {
+            if (state is WeatherShowApiError) {
+              showError(context, state.message, state.canResend);
+            } else if (state is WeatherShowGeoError) {
+              state.error.handleGeoError(context);
+            }
+          },
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.backgroundTopGradientColor,
+                  AppColors.backgroundEndGradientColor
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
+            child: const _WeatherWidget(),
           ),
-          child: const _WeatherWidget(),
         ),
       ),
     );
@@ -127,6 +135,7 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
     LocationDto? locationData;
     WeatherDto? weatherData;
     WeatherAdditionalDto? additionalWeatherData;
+    List<ForecastDto> forecasts = <ForecastDto>[];
     return BlocBuilder<WeatherBloc, WeatherState>(
       builder: (context, state) {
         if (state is WeatherInitialState ||
@@ -138,6 +147,7 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
           locationData = state.data.location;
           weatherData = state.data.weather;
           additionalWeatherData = state.data.additionalWeather;
+          forecasts = state.data.forecasts;
         }
 
         return Stack(
@@ -149,7 +159,7 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
                       location:
                           locationData != null ? locationData!.location : ''),
                   _MainWeatherInfoWidget(weather: weatherData),
-                  _DayWeatherInfoWidget(),
+                  _DayWeatherInfoWidget(forecasts: forecasts),
                   _AdditionalWeatherInfoWidget(data: additionalWeatherData),
                 ],
               ),
@@ -304,7 +314,12 @@ class _MainWeatherInfoWidget extends StatelessWidget {
 }
 
 class _DayWeatherInfoWidget extends StatelessWidget {
-  const _DayWeatherInfoWidget({Key? key}) : super(key: key);
+  const _DayWeatherInfoWidget({
+    Key? key,
+    required this.forecasts,
+  }) : super(key: key);
+
+  final List<ForecastDto> forecasts;
 
   @override
   Widget build(BuildContext context) {
@@ -353,7 +368,7 @@ class _DayWeatherInfoWidget extends StatelessWidget {
                 height: 142,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: 10,
+                  itemCount: forecasts.length,
                   itemBuilder: (BuildContext context, int index) {
                     return Container(
                       width: 74,
@@ -368,7 +383,8 @@ class _DayWeatherInfoWidget extends StatelessWidget {
                                   width: 1,
                                   color: AppColors.activeCartBorderColor),
                             ),
-                      child: const _CartInDayListWidget(),
+                      child: _CartInDayListWidget(
+                          forecast: forecasts.elementAt(index)),
                     );
                   },
                 ),
@@ -382,7 +398,10 @@ class _DayWeatherInfoWidget extends StatelessWidget {
 }
 
 class _CartInDayListWidget extends StatelessWidget {
-  const _CartInDayListWidget({Key? key}) : super(key: key);
+  const _CartInDayListWidget({Key? key, required this.forecast})
+      : super(key: key);
+
+  final ForecastDto forecast;
 
   @override
   Widget build(BuildContext context) {
@@ -391,18 +410,30 @@ class _CartInDayListWidget extends StatelessWidget {
       children: [
         const SizedBox(height: 16),
         Text(
-          '15:00',
+          DataConverter.getTimeFromUtcSeconds(forecast.dt),
           style: context.theme.b2,
         ),
-        const SizedBox(height: 16),
-        Image.asset(
-          AppImages.iconCloudLightning,
-          height: 32,
-          width: 32,
+        const SizedBox(height: 8),
+        CachedNetworkImage(
+          height: 48,
+          width: 48,
+          placeholder: (context, url) => const Padding(
+            padding: EdgeInsets.all(12),
+            child: CircularProgressIndicator(
+              color: AppColors.lightPink,
+            ),
+          ),
+          imageUrl: forecast.icon,
+          errorWidget: (context, url, error) => Padding(
+            padding: const EdgeInsets.all(8),
+            child: Image.asset(
+              AppImages.iconCloudSun,
+            ),
+          ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         Text(
-          '23º',
+          '${forecast.temperature}º',
           style: GoogleFonts.roboto(
             textStyle: context.theme.b1,
             fontWeight: FontWeight.w500,

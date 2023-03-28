@@ -29,9 +29,12 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     on<WeatherResendQuery>(_onWeatherResend);
   }
 
-  FutureOr<void> _onWeatherPageLoaded(final WeatherPageLoaded event,
-      final Emitter<WeatherState> emit,) async {
+  FutureOr<void> _onWeatherPageLoaded(
+    final WeatherPageLoaded event,
+    final Emitter<WeatherState> emit,
+  ) async {
     emit(WeatherStartLongOperationState());
+    // TODO will be nullpointer on change model structure
     final savedData = await locationDataRepository.getItem();
     if (savedData == null) {
       lastLocation = const LocationDto.initial();
@@ -43,30 +46,30 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     await updateWeatherData(lastLocation!, emit);
     await Future.delayed(
       const Duration(milliseconds: 200),
-          () {
+      () {
         emit(WeatherEndLongOperationState());
       },
     );
-
-    final res = await apiDataRepository.getForecast(lastLocation!);
-    print ('@@@ ${res.right}');
   }
 
-  FutureOr<void> _onWeatherResend(final WeatherResendQuery event,
-      final Emitter<WeatherState> emit) async {
+  FutureOr<void> _onWeatherResend(
+      final WeatherResendQuery event, final Emitter<WeatherState> emit) async {
     emit(WeatherStartLongOperationState());
     await updateWeatherData(lastLocation!, emit);
     await Future.delayed(
       const Duration(milliseconds: 200),
-          () {
+      () {
         emit(WeatherEndLongOperationState());
       },
     );
   }
 
-  Future<void> updateWeatherData(final LocationDto location,
-      final Emitter<WeatherState> emit,) async {
-    final result = await apiDataRepository.getWeather(location);
+  Future<void> updateWeatherData(
+    final LocationDto location,
+    final Emitter<WeatherState> emit,
+  ) async {
+    final result =
+        await apiDataRepository.getWeatherForecast(location: location);
     if (result.isRight) {
       final apiData = result.right;
       emit(WeatherNewDataState(data: apiData));
@@ -85,7 +88,7 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
       final position = await geolocationService.getCurrentPosition();
       final currLocation = LocationDto.fromPosition(position: position);
       lastLocation =
-      await geolocationService.getPositionAddress(location: currLocation);
+          await geolocationService.getPositionAddress(location: currLocation);
     } on GeoException catch (exception) {
       emit(WeatherShowGeoError(error: exception.error));
     } on TimeoutException catch (exception) {

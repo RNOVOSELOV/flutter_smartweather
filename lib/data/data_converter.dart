@@ -32,7 +32,14 @@ class DataConverter {
 
   static String getTimeFromUtcSeconds(int value) {
     final dateTime =  DateTime.fromMillisecondsSinceEpoch(value * 1000, isUtc: true);
-    return '${dateTime.hour}:${dateTime.minute}';
+    return '${_getFormattedTime(dateTime.hour)}:${_getFormattedTime(dateTime.minute)}';
+  }
+
+  static String _getFormattedTime (int value) {
+    if (value < 10) {
+      return '0$value';
+    }
+    return '$value';
   }
 
   static String getVisibility(int value) {

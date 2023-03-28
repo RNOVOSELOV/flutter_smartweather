@@ -1,5 +1,5 @@
-import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:weather/data/http/owm_api/models/api_weather_response_dto.dart';
 
 part 'weather_dto.g.dart';
@@ -22,12 +22,28 @@ class WeatherDto extends Equatable {
 
   const WeatherDto.initial()
       : this(
-    description: 'переменная облачность',
-    icon: '03n',
-    temperature: -6,
-    temperatureMin: -10,
-    temperatureMax: -5,
-  );
+          description: 'переменная облачность',
+          icon: '03n',
+          temperature: -6,
+          temperatureMin: -10,
+          temperatureMax: -5,
+        );
+
+  WeatherDto copyWith({
+    final String? description,
+    final String? icon,
+    final int? temperature,
+    final int? temperatureMin,
+    final int? temperatureMax,
+  }) {
+    return WeatherDto(
+      description: description ?? this.description,
+      icon: icon ?? this.icon,
+      temperature: temperature ?? this.temperature,
+      temperatureMin: temperatureMin ?? this.temperatureMin,
+      temperatureMax: temperatureMax ?? this.temperatureMax,
+    );
+  }
 
   WeatherDto.fromApiResponse({required ApiWeatherResponseDto response})
       : this(
