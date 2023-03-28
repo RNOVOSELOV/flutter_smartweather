@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:weather/data/geolocation/geo.dart';
@@ -9,7 +8,7 @@ import 'package:weather/data/http/repositories/api_repository.dart';
 import 'package:weather/data/storage/local_data_provider.dart';
 import 'package:weather/data/storage/repositories/location_repository.dart';
 import 'package:weather/data/storage/shared_preference_data.dart';
-import 'package:weather/presentation/weather/block/weather_bloc.dart';
+import 'package:weather/presentation/weather/bloc/weather_bloc.dart';
 import 'package:weather/simple_bloc_observer.dart';
 
 final sl = GetIt.instance;

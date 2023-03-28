@@ -66,7 +66,7 @@ enum GeoError {
                   )),
           ],
         ),
-        backgroundColor: AppColors.grapeColor,
+        backgroundColor: AppColors.gunMetalColor,
         duration: const Duration(seconds: 5),
         elevation: 4,
         behavior: SnackBarBehavior.floating,

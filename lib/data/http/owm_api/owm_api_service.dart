@@ -5,9 +5,11 @@ import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/http/owm_api/api_data_provider.dart';
 import 'package:weather/data/http/owm_api/base_api_service.dart';
 import 'package:weather/data/http/owm_api/models/api_error.dart';
+import 'package:weather/data/http/owm_api/models/api_forecast_response_dto.dart';
 import 'package:weather/data/http/owm_api/models/api_weather_response_dto.dart';
 
 class OwmApiService extends BaseApiService implements ApiDataProvider {
+  static const String _countForecasts = '8';
   final Dio _dio;
   final String _mode = 'json';
   late final String? _apiKey;
@@ -40,6 +42,26 @@ class OwmApiService extends BaseApiService implements ApiDataProvider {
         },
       );
       return ApiWeatherResponseDto.fromJson(response.data);
+    });
+  }
+
+  @override
+  Future<Either<ApiError, ApiForecastResponseDto>> getForecast(
+      {required final LocationDto location}) async {
+    return responseOrError(request: () async {
+      final response = await _dio.get(
+        '/forecast',
+        queryParameters: {
+          'lat': location.latitude,
+          'lon': location.longitude,
+          'appid': _apiKey ?? 'nonexistenttoken',
+          'mode': _mode,
+          'lang': _language,
+          'units': _units,
+          'cnt': _countForecasts,
+        },
+      );
+      return ApiForecastResponseDto.fromJson(response.data);
     });
   }
 }

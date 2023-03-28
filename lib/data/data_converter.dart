@@ -1,7 +1,36 @@
+import 'package:weather/resources/app_images.dart';
 import 'package:weather/resources/app_strings.dart';
 
 class DataConverter {
   DataConverter._();
+
+  static String getBigWeatherIcon(int id) {
+    if (id < 299) {
+      return AppImages.bigIconThunderstorm;
+    } else if (id <= 311) {
+      return AppImages.bigIconLowRain;
+    }else if (id < 399) {
+      return AppImages.bigIconRain;
+    } else if (id <= 504) {
+      return AppImages.bigIconSunWithRain;
+    } else if (id <= 599) {
+      return AppImages.bigIconRainfall;
+    } else if (id <= 699) {
+      return AppImages.bigIconSnow;
+    } else if (id == 800) {
+      return AppImages.bigIconSun;
+    } else if (id == 801) {
+      return AppImages.bigIconSunWithCloud;
+    } else if (id == 802) {
+      return AppImages.bigIconCloud;
+    } else if (id == 803) {
+      return AppImages.bigIconClouds;
+    } else if (id == 804) {
+      return AppImages.bigIconClouds;
+    } else {
+      return AppImages.bigIconClouds;
+    }
+  }
 
   static String getHumidity(int value) {
     if (value < 40) {
@@ -31,8 +60,16 @@ class DataConverter {
   }
 
   static String getTimeFromUtcSeconds(int value) {
-    final dateTime =  DateTime.fromMillisecondsSinceEpoch(value * 1000, isUtc: true);
-    return '${dateTime.hour}:${dateTime.minute}';
+    final dateTime =
+        DateTime.fromMillisecondsSinceEpoch(value * 1000, isUtc: true);
+    return '${_getFormattedTime(dateTime.hour)}:${_getFormattedTime(dateTime.minute)}';
+  }
+
+  static String _getFormattedTime(int value) {
+    if (value < 10) {
+      return '0$value';
+    }
+    return '$value';
   }
 
   static String getVisibility(int value) {
@@ -70,8 +107,8 @@ class DataConverter {
     }
   }
 
-  static String getMonth () {
-    switch (DateTime.now().month){
+  static String getMonth() {
+    switch (DateTime.now().month) {
       case 1:
         return 'января';
       case 2:

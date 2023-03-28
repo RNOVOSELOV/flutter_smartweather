@@ -32,6 +32,14 @@ class AppStrings {
       'Обнаружена ошибка в работе программы. Наши специалисты уже уведомлены о Вашей проблеме.';
   static const String invalidApiKey =
       'Сервис временно недоступен. Наши специалисты уже восстанавливают работоспособность.';
+  static const String incorrectRequest =
+      'Некоректный запрос. Наши специалисты уже уведомлены о Вашей проблеме.';
+  static const String incorrectRequestCoordinateAbsent =
+      'Некоректные координаты. Наши специалисты уже уведомлены о Вашей проблеме.';
+  static const String toMoreRequests =
+      'Превышено количество запросов. Повторите попытку позже.';
+  static const String serverError =
+      'Ошибка сервера. Повторите попытку позже.';
 
   static const String windNE = 'Ветер северо-восточный';
   static const String windE = 'Ветер восточный';

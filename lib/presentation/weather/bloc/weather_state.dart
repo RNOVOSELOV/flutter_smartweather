@@ -27,3 +27,22 @@ class WeatherNewDataState extends WeatherState {
   @override
   List<Object?> get props => [data];
 }
+
+class WeatherShowApiError extends WeatherState {
+  final String message;
+  final bool canResend;
+
+  const WeatherShowApiError({required this.message, required this.canResend});
+
+  @override
+  List<Object?> get props => [message, canResend];
+}
+
+class WeatherShowGeoError extends WeatherState {
+  final GeoError error;
+
+  const WeatherShowGeoError({required this.error});
+
+  @override
+  List<Object?> get props => [error];
+}

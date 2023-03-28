@@ -10,3 +10,10 @@ class WeatherPageLoaded extends WeatherEvent {
   @override
   List<Object?> get props => const [];
 }
+
+class WeatherResendQuery extends WeatherEvent {
+  const WeatherResendQuery();
+
+  @override
+  List<Object?> get props => const [];
+}

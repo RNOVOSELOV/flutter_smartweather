@@ -1,14 +1,16 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:css_filter/css_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weather/data/data_converter.dart';
+import 'package:weather/data/dto/forecast_dto.dart';
 import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/dto/weather_additional_dto.dart';
 import 'package:weather/data/dto/weather_dto.dart';
 import 'package:weather/di/service_locator.dart';
-import 'package:weather/presentation/weather/block/weather_bloc.dart';
+import 'package:weather/presentation/weather/bloc/weather_bloc.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
 import 'package:weather/resources/app_strings.dart';
@@ -32,22 +34,90 @@ class _WeatherPageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppColors.backgroundTopGradientColor,
-              AppColors.backgroundEndGradientColor
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      body: RefreshIndicator(
+        color: AppColors.lightPink,
+        onRefresh: () async {
+          context.read<WeatherBloc>().add(const WeatherResendQuery());
+        },
+        child: BlocListener<WeatherBloc, WeatherState>(
+          listener: (context, state) {
+            if (state is WeatherShowApiError) {
+              showError(context, state.message, state.canResend);
+            } else if (state is WeatherShowGeoError) {
+              state.error.handleGeoError(context);
+            }
+          },
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.backgroundTopGradientColor,
+                  AppColors.backgroundEndGradientColor
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: const _WeatherWidget(),
           ),
         ),
-        child: const _WeatherWidget(),
       ),
     );
+  }
+
+  void showError(BuildContext context, String message, bool resend) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: context.theme.b2,
+            ),
+          ),
+          if (resend)
+            const SizedBox(
+              width: 12,
+            ),
+          if (resend)
+            ElevatedButton(
+                onPressed: () =>
+                    context.read<WeatherBloc>().add(const WeatherResendQuery()),
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  padding: const EdgeInsets.all(4),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: Text(
+                    AppStrings.fixButtonLabel,
+                    style: TextStyle(
+                      fontStyle: FontStyle.normal,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 15,
+                      height: 22 / 15,
+                      color: AppColors.textWhiteColor,
+                    ),
+                  ),
+                )),
+        ],
+      ),
+      backgroundColor: AppColors.gunMetalColor,
+      duration: const Duration(seconds: 5),
+      elevation: 4,
+      behavior: SnackBarBehavior.floating,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(12), topRight: Radius.circular(12))),
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+    ));
   }
 }
 
@@ -65,17 +135,21 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
     LocationDto? locationData;
     WeatherDto? weatherData;
     WeatherAdditionalDto? additionalWeatherData;
+    List<ForecastDto> forecasts = <ForecastDto>[];
     return BlocBuilder<WeatherBloc, WeatherState>(
       builder: (context, state) {
         if (state is WeatherInitialState ||
             state is WeatherStartLongOperationState) {
           inProgress = true;
-        } else if (state is WeatherEndLongOperationState) {
+        }
+        if (state is WeatherEndLongOperationState) {
           inProgress = false;
-        } else if (state is WeatherNewDataState) {
+        }
+        if (state is WeatherNewDataState) {
           locationData = state.data.location;
           weatherData = state.data.weather;
           additionalWeatherData = state.data.additionalWeather;
+          forecasts = state.data.forecasts;
         }
 
         return Stack(
@@ -84,14 +158,16 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
               child: CustomScrollView(
                 slivers: [
                   _AppBarWidget(
-                      location:
-                          locationData != null ? locationData!.location : ''),
+                    location:
+                        locationData != null ? locationData!.location : '',
+                    imageId: weatherData != null ? weatherData!.id : 801,
+                  ),
                   _MainWeatherInfoWidget(weather: weatherData),
-                  _DayWeatherInfoWidget(),
+                  _DayWeatherInfoWidget(forecasts: forecasts),
                   _AdditionalWeatherInfoWidget(data: additionalWeatherData),
                 ],
               ),
-              value: inProgress ? 2 : 0,
+              value: inProgress ? 1 : 0,
             ),
             if (inProgress)
               const Center(
@@ -109,8 +185,12 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
 }
 
 class _AppBarWidget extends StatelessWidget {
-  const _AppBarWidget({Key? key, required this.location}) : super(key: key);
-
+  const _AppBarWidget({
+    Key? key,
+    required this.location,
+    required this.imageId,
+  }) : super(key: key);
+  final int imageId;
   final String location;
 
   @override
@@ -155,7 +235,7 @@ class _AppBarWidget extends StatelessWidget {
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: Image.asset(
-                      AppImages.bigIconSun,
+                      DataConverter.getBigWeatherIcon(imageId),
                       height: 180,
                       width: 180,
                     ),
@@ -242,7 +322,12 @@ class _MainWeatherInfoWidget extends StatelessWidget {
 }
 
 class _DayWeatherInfoWidget extends StatelessWidget {
-  const _DayWeatherInfoWidget({Key? key}) : super(key: key);
+  const _DayWeatherInfoWidget({
+    Key? key,
+    required this.forecasts,
+  }) : super(key: key);
+
+  final List<ForecastDto> forecasts;
 
   @override
   Widget build(BuildContext context) {
@@ -291,7 +376,7 @@ class _DayWeatherInfoWidget extends StatelessWidget {
                 height: 142,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: 10,
+                  itemCount: forecasts.length,
                   itemBuilder: (BuildContext context, int index) {
                     return Container(
                       width: 74,
@@ -306,7 +391,8 @@ class _DayWeatherInfoWidget extends StatelessWidget {
                                   width: 1,
                                   color: AppColors.activeCartBorderColor),
                             ),
-                      child: const _CartInDayListWidget(),
+                      child: _CartInDayListWidget(
+                          forecast: forecasts.elementAt(index)),
                     );
                   },
                 ),
@@ -320,7 +406,10 @@ class _DayWeatherInfoWidget extends StatelessWidget {
 }
 
 class _CartInDayListWidget extends StatelessWidget {
-  const _CartInDayListWidget({Key? key}) : super(key: key);
+  const _CartInDayListWidget({Key? key, required this.forecast})
+      : super(key: key);
+
+  final ForecastDto forecast;
 
   @override
   Widget build(BuildContext context) {
@@ -329,18 +418,30 @@ class _CartInDayListWidget extends StatelessWidget {
       children: [
         const SizedBox(height: 16),
         Text(
-          '15:00',
+          DataConverter.getTimeFromUtcSeconds(forecast.dt),
           style: context.theme.b2,
         ),
-        const SizedBox(height: 16),
-        Image.asset(
-          AppImages.iconCloudLightning,
-          height: 32,
-          width: 32,
+        const SizedBox(height: 8),
+        CachedNetworkImage(
+          height: 48,
+          width: 48,
+          placeholder: (context, url) => const Padding(
+            padding: EdgeInsets.all(12),
+            child: CircularProgressIndicator(
+              color: AppColors.lightPink,
+            ),
+          ),
+          imageUrl: forecast.icon,
+          errorWidget: (context, url, error) => Padding(
+            padding: const EdgeInsets.all(8),
+            child: Image.asset(
+              AppImages.iconCloudSun,
+            ),
+          ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         Text(
-          '23º',
+          '${forecast.temperature}º',
           style: GoogleFonts.roboto(
             textStyle: context.theme.b1,
             fontWeight: FontWeight.w500,
@@ -415,40 +516,6 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
   }
 }
 
-// class _AdditionalInfoDescriptionColumnWidget extends StatelessWidget {
-//   const _AdditionalInfoDescriptionColumnWidget(
-//       {Key? key, required this.parameters})
-//       : super(key: key);
-//   final WeatherParameters parameters;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       mainAxisSize: MainAxisSize.min,
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           'Ветер северо-восточный',
-//           style: GoogleFonts.roboto(
-//             textStyle: context.theme.b2,
-//             color: AppColors.textAdditionalColor,
-//           ),
-//         ),
-//         const SizedBox(
-//           height: 16,
-//         ),
-//         Text(
-//           'Высокая влажность',
-//           style: GoogleFonts.roboto(
-//             textStyle: context.theme.b2,
-//             color: AppColors.textAdditionalColor,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-
 /*
       final geo = Geo();
       final service = await geo.checkServiceAvailability();
@@ -456,25 +523,6 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
       final permission = await geo.checkLocationPermission();
       print('!!! Permission $permission');
 
-      LocationDto? locationDto;
-      try {
-        final position = await geo.getCurrentPosition();
-        print('!!! Position $position');
-        locationDto = LocationDto.fromPosition(position: position);
-      } on GeoException catch (exception) {
-        exception.error.handleGeoError(context);
-        print('Error: $exception');
-      } on TimeoutException catch (exception) {
-        GeoError.geoTimeoutError.handleGeoError(context);
-        print('Error2: $exception');
-      } catch (err) {
-        GeoError.geoUnknownError.handleGeoError(context);
-        print('Error3: $err');
-      } finally {
-        locationDto ??= LocationDto.initial();
-      }
-      print('!!! Location $locationDto');
-      final location = await geo.getPositionAddress(location: locationDto,);
-      print('NEW location: $location');
+
 
  */
