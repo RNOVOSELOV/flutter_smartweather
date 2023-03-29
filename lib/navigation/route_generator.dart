@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:weather/navigation/route_name.dart';
+import 'package:weather/presentation/login/login_page.dart';
 import 'package:weather/presentation/splash/splash_page.dart';
+import 'package:weather/presentation/weather/weather_page.dart';
 
 RouteFactory generateRoute() {
   return (setting) {
@@ -16,11 +18,9 @@ RouteFactory generateRoute() {
       case RouteName.splash:
         return _createPageRoute(const SplashPage(), routeName);
       case RouteName.login:
-        // TODO: Handle this case.
-        break;
+        return _createPageRoute(const LoginPage(), routeName);
       case RouteName.weather:
-        // TODO: Handle this case.
-        break;
+        return _createPageRoute(const WeatherPage(), routeName);
     }
   };
 }
