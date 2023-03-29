@@ -84,15 +84,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   FutureOr<void> _loginPageLoaded(
       final LoginPageLoaded event, final Emitter<LoginState> emit) async {
     await geoRepository.initGeo();
-    final lastPosition = await geoRepository.getLastKnownPosition();
-    print('!!! LKNOWNP $lastPosition');
-
-    if (lastPosition != null) {
-      final result =
-          await apiDataRepository.getWeatherForecast(location: lastPosition);
-      if (result.isRight) {
-        await locationDataRepository.setItem(result.right);
-      }
-    }
+    // final lastPosition = await geoRepository.getLastKnownPosition();
+    // print('!!! LKNOWNP $lastPosition');
+    //
+    // if (lastPosition != null) {
+    //   final result =
+    //       await apiDataRepository.getWeatherForecast(location: lastPosition);
+    //   if (result.isRight) {
+    //     await locationDataRepository.setItem(result.right);
+    //   }
+    // }
   }
 }
