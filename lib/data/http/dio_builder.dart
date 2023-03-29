@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
@@ -33,13 +32,16 @@ class DioBuilder {
   Dio build() => _dio;
 
   DioBuilder addCacheInterceptor() {
+    /*
+    TODO Realized manually in ApiRepository
     final options = CacheOptions(
       store: MemCacheStore(),
       policy: CachePolicy.forceCache,
       maxStale: const Duration(seconds: 42),
       priority: CachePriority.high,
     );
-//    _dio.interceptors.add(DioCacheInterceptor(options: options));
+    _dio.interceptors.add(DioCacheInterceptor(options: options));
+    */
     return this;
   }
 

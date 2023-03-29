@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:either_dart/either.dart';
 import 'package:weather/data/dto/forecast_dto.dart';
 import 'package:weather/data/dto/location_dto.dart';
@@ -13,6 +15,9 @@ class ApiRepository {
   final ApiDataProvider _apiDataProvider;
 
   ApiRepository(this._apiDataProvider);
+
+  // TODO replace to another object
+  Map<String, String> simpleMemoryCache = {};
 
   Future<Either<ApiError, ApiWeatherResponseDto>> _getWeather(
       final LocationDto location) async {
@@ -34,6 +39,14 @@ class ApiRepository {
 
   Future<Either<ApiError, LocationWeatherDto>> getWeatherForecast(
       {required final LocationDto location}) async {
+    String mapKey = location.toString();
+    if (simpleMemoryCache.containsKey(mapKey)) {
+      final value = simpleMemoryCache[mapKey];
+      if (value != null) {
+        return Right(LocationWeatherDto.fromJson(json.decode(value)));
+      }
+    }
+
     final weather = await _getWeather(location);
     if (weather.isLeft) {
       return Left(weather.left);
@@ -69,6 +82,16 @@ class ApiRepository {
           WeatherAdditionalDto.fromApiResponse(response: weather.right),
       forecasts: listForecasts,
     );
+
+    if (!simpleMemoryCache.containsKey(mapKey)) {
+      final value = json.encode(data.toJson());
+      simpleMemoryCache[mapKey] = value;
+      Future.delayed(
+        const Duration(seconds: 42),
+        () => simpleMemoryCache.remove(mapKey),
+      );
+    }
+
     return Right(data);
   }
 }

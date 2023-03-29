@@ -53,15 +53,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   FutureOr<void> _loginButtonClicked(
       final LoginButtonPressed event, final Emitter<LoginState> emit) {
-    emit(state.copyWith(authenticated: true));
-    return null;
     if (!_emailValid(state.email)) {
       emit(state.copyWith(
         emailIsValid: false,
         authenticated: false,
       ));
     } else {
-      print('!!! SEND REQUEST & check request error - LoginError !!!');
+      // TODO REALIZE HERE OAuth protocol
       emit(state.copyWith(authenticated: true));
     }
   }
