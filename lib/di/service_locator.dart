@@ -48,7 +48,7 @@ void _setupRepositories() {
 
 // ONLY FACTORIES
 void _setupBlocks() {
-  Bloc.observer = SimpleBlocObserver();
+ // Bloc.observer = SimpleBlocObserver();
   sl.registerFactory(() => LoginBloc(
         geoRepository: sl.get<GeoRepository>(),
         apiDataRepository: sl.get<ApiRepository>(),

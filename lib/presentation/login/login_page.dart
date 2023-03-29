@@ -93,36 +93,40 @@ class _LoginPageWidgetState extends State<_LoginPageWidget> {
           },
         ),
       ],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 68),
-            Text(
-              AppStrings.enterString,
-              style: context.theme.h1,
+      child: ListView(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 68),
+                Text(
+                  AppStrings.enterString,
+                  style: context.theme.h1,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  AppStrings.enterDescriptionString,
+                  style: GoogleFonts.roboto(
+                    textStyle: context.theme.b2,
+                    color: AppColors.textGreyColor,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _EmailTextField(
+                  emailFocusNode: _emailFocusNode,
+                  passwordFocusNode: _passwordFocusNode,
+                ),
+                const SizedBox(height: 32),
+                _PasswordTextField(passwordFocusNode: _passwordFocusNode),
+                const SizedBox(height: 48),
+                const _LoginButtonWidget(),
+              ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              AppStrings.enterDescriptionString,
-              style: GoogleFonts.roboto(
-                textStyle: context.theme.b2,
-                color: AppColors.textGreyColor,
-              ),
-            ),
-            const SizedBox(height: 24),
-            _EmailTextField(
-              emailFocusNode: _emailFocusNode,
-              passwordFocusNode: _passwordFocusNode,
-            ),
-            const SizedBox(height: 32),
-            _PasswordTextField(passwordFocusNode: _passwordFocusNode),
-            const SizedBox(height: 48),
-            const _LoginButtonWidget(),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
