@@ -3,7 +3,7 @@
 
 <br/>
 <p align="center">
-  <img src="https://github.com/RNOVOSELOV/flutter_smartweather/blob/main/sw.gif" width="150"/>
+  <img src="https://github.com/RNOVOSELOV/flutter_smartweather/blob/main/sw.gif" width="200
 </p>
 
 ## О проекте
