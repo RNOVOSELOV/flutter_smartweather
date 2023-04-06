@@ -3,24 +3,30 @@ import 'dart:async';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:weather/data/geolocation/geo_error.dart';
-import 'package:weather/data/dto/location_dto.dart';
 
 class Geo {
-  bool serviceEnabled = false;
-
   Geo();
 
-  FutureOr<bool> checkServiceAvailability() async {
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    return serviceEnabled;
+  FutureOr<bool> serviceIsAvailable() async {
+    return await Geolocator.isLocationServiceEnabled();
   }
 
-  FutureOr<bool> checkLocationPermission() async {
+  FutureOr<bool> permissionsIsGranted() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always) {
+      return true;
+    }
+    return false;
+  }
+
+  FutureOr<bool> tryRequestPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
     if (permission == LocationPermission.deniedForever ||
+        permission == LocationPermission.unableToDetermine ||
         permission == LocationPermission.denied) {
       return false;
     }
@@ -37,17 +43,15 @@ class Geo {
   }
 
   FutureOr<Position> getCurrentPosition() async {
-    if (!serviceEnabled) {
-      final serviceStatus = await checkServiceAvailability();
-      if (!serviceStatus) {
-        throw GeoException(error: GeoError.geoServiceDisabled);
-      }
+    final serviceStatus = await serviceIsAvailable();
+    if (!serviceStatus) {
+      throw GeoException(error: GeoError.geoServiceDisabled);
     }
-
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       throw GeoException(error: GeoError.geoPermissionDenied);
-    } else if (permission == LocationPermission.deniedForever) {
+    } else if (permission == LocationPermission.deniedForever ||
+        permission == LocationPermission.unableToDetermine) {
       throw GeoException(error: GeoError.geoPermissionDeniedForever);
     }
     return await Geolocator.getCurrentPosition(
@@ -56,22 +60,16 @@ class Geo {
     );
   }
 
-  FutureOr<LocationDto> getPositionAddress(
-      {required LocationDto location}) async {
+  FutureOr<Placemark?> getPositionAddress(
+      {required double latitude, required double longitude}) async {
     List<Placemark> placesList = await placemarkFromCoordinates(
-      location.latitude,
-      location.longitude,
+      latitude,
+      longitude,
       localeIdentifier: 'ru_RU',
     );
     if (placesList.isEmpty) {
-      return location;
+      return null;
     }
-    final place = placesList.first;
-    final location1 = ((place.locality ?? place.subAdministrativeArea) ??
-            place.administrativeArea) ??
-        'Unknown place';
-    final location2 =
-        (place.country ?? place.isoCountryCode) ?? 'Unknown country';
-    return location.copyWith(location: '$location1, $location2');
+    return placesList.first;
   }
 }

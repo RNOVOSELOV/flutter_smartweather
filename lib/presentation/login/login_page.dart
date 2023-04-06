@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:weather/data/geolocation/geo.dart';
-import 'package:weather/data/geolocation/geo_error.dart';
-import 'package:weather/data/dto/location_dto.dart';
+import 'package:weather/di/service_locator.dart';
 import 'package:weather/navigation/route_name.dart';
+import 'package:weather/presentation/login/bloc/login_bloc.dart';
+import 'package:weather/presentation/login/models/login_errors.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_strings.dart';
 import 'package:weather/theme/theme_extensions.dart';
@@ -15,8 +14,11 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: _LoginPageWidget(),
+    return BlocProvider(
+      create: (_) => sl.get<LoginBloc>()..add(const LoginPageLoaded()),
+      child: const Scaffold(
+        body: _LoginPageWidget(),
+      ),
     );
   }
 }
@@ -48,34 +50,82 @@ class _LoginPageWidgetState extends State<_LoginPageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<LoginBloc, LoginState>(
+          listener: (context, state) {
+            if (state.authenticated) {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  RouteName.weather.route, (route) => false);
+            }
+          },
+        ),
+        BlocListener<LoginBloc, LoginState>(
+          listener: (context, state) {
+            if (state.loginError != LoginError.noError) {
+              String warningMessage = '';
+              final lError = state.loginError;
+              // if (lError == LoginError.incorrectEmail) {
+              //   warningMessage = 'Введен некоректный email';
+              // }
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Flexible(
+                  child: Text(
+                    warningMessage,
+                    textAlign: TextAlign.center,
+                    style: context.theme.b2,
+                  ),
+                ),
+                backgroundColor: AppColors.gunMetalColor,
+                duration: const Duration(seconds: 5),
+                elevation: 4,
+                behavior: SnackBarBehavior.floating,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12))),
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+              ));
+              context.read<LoginBloc>().add(const LoginErrorShowed());
+            }
+          },
+        ),
+      ],
+      child: ListView(
         children: [
-          const SizedBox(height: 68),
-          Text(
-            AppStrings.enterString,
-            style: context.theme.h1,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            AppStrings.enterDescriptionString,
-            style: GoogleFonts.roboto(
-              textStyle: context.theme.b2,
-              color: AppColors.textGreyColor,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 68),
+                Text(
+                  AppStrings.enterString,
+                  style: context.theme.h1,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  AppStrings.enterDescriptionString,
+                  style: GoogleFonts.roboto(
+                    textStyle: context.theme.b2,
+                    color: AppColors.textGreyColor,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _EmailTextField(
+                  emailFocusNode: _emailFocusNode,
+                  passwordFocusNode: _passwordFocusNode,
+                ),
+                const SizedBox(height: 32),
+                _PasswordTextField(passwordFocusNode: _passwordFocusNode),
+                const SizedBox(height: 48),
+                const _LoginButtonWidget(),
+              ],
             ),
           ),
-          const SizedBox(height: 24),
-          _EmailTextField(
-            emailFocusNode: _emailFocusNode,
-            passwordFocusNode: _passwordFocusNode,
-          ),
-          const SizedBox(height: 32),
-          _PasswordTextField(passwordFocusNode: _passwordFocusNode),
-          const SizedBox(height: 48),
-          const _LoginButtonWidget(),
         ],
       ),
     );
@@ -96,26 +146,35 @@ class _EmailTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      expands: false,
-      textAlignVertical: TextAlignVertical.center,
-      textCapitalization: TextCapitalization.none,
-      focusNode: _emailFocusNode,
-//      onChanged: (text) =>
-//          context.read<LoginBloc>().add(LoginEmailChanged(text)),
-      onSubmitted: (_) => _passwordFocusNode.requestFocus(),
-      autocorrect: false,
+    return BlocSelector<LoginBloc, LoginState, bool>(
+      selector: (state) => state.emailIsValid,
+      builder: (context, emailValid) {
+        return TextField(
+          expands: false,
+          textAlignVertical: TextAlignVertical.center,
+          textCapitalization: TextCapitalization.none,
+          focusNode: _emailFocusNode,
+          onChanged: (text) =>
+              context.read<LoginBloc>().add(LoginEmailChanged(text)),
+          onSubmitted: (_) => _emailIsEntered(context),
+          onTapOutside: (_) => _emailIsEntered(context),
+          autocorrect: false,
 //      autofocus: true,
-      keyboardType: TextInputType.emailAddress,
-      textInputAction: TextInputAction.go,
-      autofillHints: const [AutofillHints.email],
-      decoration: InputDecoration(
-        labelText: AppStrings.emailInputLabel,
-//        errorText: emailError == EmailError.noError
-//            ? null
-//            : 'Пользователь с таким email не обнаружен',
-      ),
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.go,
+          autofillHints: const [AutofillHints.email],
+          decoration: InputDecoration(
+            labelText: AppStrings.emailInputLabel,
+            errorText: emailValid ? null : 'Некорректный email',
+          ),
+        );
+      },
     );
+  }
+
+  void _emailIsEntered(BuildContext context) {
+    context.read<LoginBloc>().add(const LoginEmailEntered());
+    _passwordFocusNode.requestFocus();
   }
 }
 
@@ -142,11 +201,11 @@ class _PasswordTextFieldState extends State<_PasswordTextField> {
       textAlignVertical: TextAlignVertical.center,
       textCapitalization: TextCapitalization.none,
       focusNode: widget._passwordFocusNode,
-//      onChanged: (text) =>
-//          context.read<LoginBloc>().add(LoginPasswordChanged(text)),
+      onChanged: (text) =>
+          context.read<LoginBloc>().add(LoginPasswordChanged(text)),
       onSubmitted: (_) {
         FocusManager.instance.primaryFocus?.unfocus();
-//        context.read<LoginBloc>().add(LoginLoginButtonPressed());
+        context.read<LoginBloc>().add(const LoginButtonPressed());
       },
       autocorrect: false,
       keyboardType: TextInputType.visiblePassword,
@@ -180,7 +239,7 @@ class _LoginButtonWidget extends StatelessWidget {
     return ElevatedButton(
       onPressed: () {
         FocusManager.instance.primaryFocus?.unfocus();
-        Navigator.of(context).pushReplacementNamed(RouteName.weather.route);
+        context.read<LoginBloc>().add(const LoginButtonPressed());
       },
       child: const SizedBox(
           width: double.infinity,

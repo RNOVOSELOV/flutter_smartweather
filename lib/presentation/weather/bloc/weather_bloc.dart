@@ -4,8 +4,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/dto/location_weather_dto.dart';
-import 'package:weather/data/geolocation/geo.dart';
 import 'package:weather/data/geolocation/geo_error.dart';
+import 'package:weather/data/geolocation/geo_repository.dart';
 import 'package:weather/data/http/repositories/api_repository.dart';
 import 'package:weather/data/storage/repositories/location_repository.dart';
 
@@ -14,14 +14,14 @@ part 'weather_event.dart';
 part 'weather_state.dart';
 
 class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
-  final Geo geolocationService;
+  final GeoRepository geoRepository;
   final ApiRepository apiDataRepository;
   final LocationRepository locationDataRepository;
 
-  LocationDto? lastLocation;
+  late LocationDto lastRequestedLocation;
 
   WeatherBloc({
-    required this.geolocationService,
+    required this.geoRepository,
     required this.apiDataRepository,
     required this.locationDataRepository,
   }) : super(WeatherInitialState()) {
@@ -29,60 +29,72 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     on<WeatherResendQuery>(_onWeatherResend);
   }
 
-  FutureOr<void> _onWeatherPageLoaded(final WeatherPageLoaded event,
-      final Emitter<WeatherState> emit,) async {
+  FutureOr<void> _onWeatherPageLoaded(
+    final WeatherPageLoaded event,
+    final Emitter<WeatherState> emit,
+  ) async {
     emit(WeatherStartLongOperationState());
 
-    try {
-      // TODO will be nullpointer on change model structure
-      final savedData = await locationDataRepository.getItem();
-      lastLocation = savedData!.location;
+    LocationDto location;
+    final savedData = await readSavedDataFromSharedPreferences();
+    if (savedData != null) {
       emit(WeatherNewDataState(data: savedData));
-    } catch (_){
-      lastLocation = const LocationDto.initial();
+      location = savedData.location;
+    } else {
+      location = const LocationDto.initial();
     }
-    await updateCurrentLocationCoordinates(emit);
-    await updateWeatherData(lastLocation!, emit);
+    final result = await updateCurrentLocationCoordinates(emit);
+    if (result != null) {
+      location = result;
+    }
+    await updateWeatherData(location, emit);
+    lastRequestedLocation = location;
     emit(WeatherEndLongOperationState());
   }
 
-  FutureOr<void> _onWeatherResend(final WeatherResendQuery event,
-      final Emitter<WeatherState> emit) async {
+  FutureOr<void> _onWeatherResend(
+      final WeatherResendQuery event, final Emitter<WeatherState> emit) async {
     emit(WeatherStartLongOperationState());
-    await updateWeatherData(lastLocation!, emit);
+    final result = await updateCurrentLocationCoordinates(emit);
+    if (result != null) {
+      lastRequestedLocation = result;
+    }
+    await updateWeatherData(lastRequestedLocation, emit);
     emit(WeatherEndLongOperationState());
   }
 
-  Future<void> updateWeatherData(final LocationDto location,
-      final Emitter<WeatherState> emit,) async {
+  FutureOr<LocationWeatherDto?> readSavedDataFromSharedPreferences() async {
+    try {
+      return await locationDataRepository.getItem();
+    } catch (_) {
+      // for future migration ... will be nullpointer if LocationWeatherDto model will be changed
+      return null;
+    }
+  }
+
+  FutureOr<LocationDto?> updateCurrentLocationCoordinates(
+      final Emitter<WeatherState> emit) async {
+    final result = await geoRepository.getCurrentLocation();
+    if (result.isLeft) {
+      emit(WeatherShowGeoError(error: result.left));
+      return null;
+    }
+    return result.right;
+  }
+
+  FutureOr<void> updateWeatherData(
+    final LocationDto location,
+    final Emitter<WeatherState> emit,
+  ) async {
     final result =
-    await apiDataRepository.getWeatherForecast(location: location);
+        await apiDataRepository.getWeatherForecast(location: location);
     if (result.isRight) {
-      final apiData = result.right;
-      emit(WeatherNewDataState(data: apiData));
-      await locationDataRepository.setItem(apiData);
+      emit(WeatherNewDataState(data: result.right));
+      await locationDataRepository.setItem(result.right);
     } else {
       final apiError = result.left.errorType;
       emit(WeatherShowApiError(
           message: apiError.message, canResend: apiError.canResend));
-    }
-  }
-
-  // TODO create GeoRepository, move error handling logic to it and return Either<GeoError, LocationDto>
-  Future<void> updateCurrentLocationCoordinates(
-      final Emitter<WeatherState> emit) async {
-    try {
-      final position = await geolocationService.getCurrentPosition();
-      final currLocation = LocationDto.fromPosition(position: position);
-      lastLocation =
-      await geolocationService.getPositionAddress(location: currLocation);
-      print('!!! UPDATED COORDINATES: $position $currLocation $lastLocation');
-    } on GeoException catch (exception) {
-      emit(WeatherShowGeoError(error: exception.error));
-    } on TimeoutException {
-      emit(const WeatherShowGeoError(error: GeoError.geoTimeoutError));
-    } catch (err) {
-      emit(const WeatherShowGeoError(error: GeoError.geoUnknownError));
     }
   }
 }

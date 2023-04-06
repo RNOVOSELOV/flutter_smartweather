@@ -167,7 +167,7 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
                   _AdditionalWeatherInfoWidget(data: additionalWeatherData),
                 ],
               ),
-              value: inProgress ? 1 : 0,
+              value: inProgress ? 2 : 0,
             ),
             if (inProgress)
               const Center(

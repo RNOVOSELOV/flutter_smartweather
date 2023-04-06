@@ -8,9 +8,9 @@ class DioBuilder {
   final Dio _dio = Dio(
     BaseOptions(
       baseUrl: 'https://api.openweathermap.org/data/2.5',
-      connectTimeout: 5000,
-      receiveTimeout: 5000,
-      sendTimeout: 5000,
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 5),
+      sendTimeout: const Duration(seconds: 5),
     ),
   );
 
@@ -18,11 +18,11 @@ class DioBuilder {
     if (kDebugMode) {
       _dio.interceptors.add(
         PrettyDioLogger(
-          request: true,
-          requestHeader: false,
-          requestBody: true,
-          responseHeader: false,
-          responseBody: true,
+          request: false,
+          requestHeader: true,
+          requestBody: false,
+          responseHeader: true,
+          responseBody: false,
           error: true,
         ),
       );
@@ -31,7 +31,19 @@ class DioBuilder {
 
   Dio build() => _dio;
 
-
+  DioBuilder addCacheInterceptor() {
+    /*
+    TODO Realized manually in ApiRepository
+    final options = CacheOptions(
+      store: MemCacheStore(),
+      policy: CachePolicy.forceCache,
+      maxStale: const Duration(seconds: 42),
+      priority: CachePriority.high,
+    );
+    _dio.interceptors.add(DioCacheInterceptor(options: options));
+    */
+    return this;
+  }
 
   DioBuilder addHeaderParameters() {
 //    _dio.options.contentType = 'application/json';
