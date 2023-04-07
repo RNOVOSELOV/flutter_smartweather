@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:weather/data/http/owm_api/models/api_forecast_response_dto.dart';
 import 'package:weather/data/http/owm_api/models/forecast_item_response.dart';
 
 part 'forecast_dto.g.dart';

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 import 'package:weather/data/data_converter.dart';
 import 'package:weather/data/dto/forecast_dto.dart';
 import 'package:weather/data/dto/location_dto.dart';
@@ -234,7 +235,7 @@ class _AppBarWidget extends StatelessWidget {
                   ),
                   Align(
                     alignment: Alignment.bottomCenter,
-                    child: Image.asset(
+                    child: Lottie.asset(
                       DataConverter.getBigWeatherIcon(imageId),
                       height: 180,
                       width: 180,
@@ -435,7 +436,7 @@ class _CartInDayListWidget extends StatelessWidget {
           errorWidget: (context, url, error) => Padding(
             padding: const EdgeInsets.all(8),
             child: Image.asset(
-              AppImages.iconCloudSun,
+              AppImages.errorPlaceholderImage,
             ),
           ),
         ),

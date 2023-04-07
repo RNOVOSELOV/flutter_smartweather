@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 import 'package:weather/data/data_converter.dart';

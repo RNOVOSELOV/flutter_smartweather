@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:weather/navigation/route_name.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
@@ -11,14 +11,25 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> {
-  double opacity = 0;
+class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
+  late double x;
+  late double y;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => setState(() => opacity = 1));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      y = MediaQuery.of(context).size.height / 8;
+
+      setState(() {});
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    y = -100;
+    x = MediaQuery.of(context).size.width * 0.7 - 50;
   }
 
   @override
@@ -36,25 +47,30 @@ class _SplashPageState extends State<SplashPage> {
           end: Alignment.bottomRight,
         ),
       ),
-      child: Column(
+      child: Stack(
         children: [
-          const Spacer(flex: 5),
-          Expanded(
-            flex: 2,
-            child: AnimatedOpacity(
-              opacity: opacity,
-              duration: const Duration(milliseconds: 1500),
-              curve: Curves.easeInOutQuad,
+          AnimatedPositioned(
+            top: y,
+            left: x,
+            duration: const Duration(milliseconds: 1500),
+            curve: Curves.easeInOutQuad,
             onEnd: () => Navigator.of(context)
-                .pushReplacementNamed(RouteName.login.route),
-              child: SvgPicture.asset(
-                AppImages.logo,
-                height: 58,
-                alignment: Alignment.center,
-              ),
+                .pushReplacementNamed(RouteName.weather.route),
+            child: Lottie.asset(
+              AppImages.bigSunny,
+              height: 100,
+              width: 100,
             ),
           ),
-          const Spacer(flex: 23),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Lottie.asset(
+              AppImages.logoM,
+              height: 200,
+              fit: BoxFit.fitHeight,
+              animate: true,
+            ),
+          )
         ],
       ),
     ));
