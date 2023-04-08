@@ -45,11 +45,14 @@ class GeoRepository {
         longitude: currLocation.longitude,
       );
       if (placeMark != null) {
-        final location1 =
-            ((placeMark.locality ?? placeMark.subAdministrativeArea) ??
-                placeMark.administrativeArea);
-        final location2 = (placeMark.country ?? placeMark.isoCountryCode);
-        return Right(currLocation.copyWith(location: '$location1, $location2'));
+        String? location = ((placeMark.locality == null || placeMark.locality!.isEmpty)
+            ? placeMark.subAdministrativeArea
+            : placeMark.locality);
+        if (location == null || location.isEmpty) {
+          location = placeMark.administrativeArea;
+        }
+        final country = (placeMark.country ?? placeMark.isoCountryCode);
+        return Right(currLocation.copyWith(location: '$location, $country'));
       }
       return Right(currLocation);
     } on GeoException catch (exception) {
