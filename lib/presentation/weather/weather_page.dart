@@ -137,6 +137,7 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
     WeatherDto? weatherData;
     WeatherAdditionalDto? additionalWeatherData;
     List<ForecastDto> forecasts = <ForecastDto>[];
+    int currentData = 10;
     return BlocBuilder<WeatherBloc, WeatherState>(
       builder: (context, state) {
         if (state is WeatherInitialState ||
@@ -151,6 +152,7 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
           weatherData = state.data.weather;
           additionalWeatherData = state.data.additionalWeather;
           forecasts = state.data.forecasts;
+          currentData = state.data.currentTime;
         }
 
         return Stack(
@@ -164,7 +166,7 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
                     imageId: weatherData != null ? weatherData!.id : 801,
                   ),
                   _MainWeatherInfoWidget(weather: weatherData),
-                  _DayWeatherInfoWidget(forecasts: forecasts),
+                  _DayWeatherInfoWidget(forecasts: forecasts, apiUtcTime: currentData),
                   _AdditionalWeatherInfoWidget(data: additionalWeatherData),
                 ],
               ),
@@ -326,9 +328,11 @@ class _DayWeatherInfoWidget extends StatelessWidget {
   const _DayWeatherInfoWidget({
     Key? key,
     required this.forecasts,
+    required this.apiUtcTime,
   }) : super(key: key);
 
   final List<ForecastDto> forecasts;
+  final int apiUtcTime;
 
   @override
   Widget build(BuildContext context) {
@@ -357,7 +361,7 @@ class _DayWeatherInfoWidget extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${DateTime.now().day} ${DataConverter.getMonth()}',
+                    '${DataConverter.getDateTimeFromUtcSeconds(apiUtcTime).day} ${DataConverter.getMonth(DataConverter.getDateTimeFromUtcSeconds(apiUtcTime).month)}',
                     style: GoogleFonts.roboto(
                       textStyle: context.theme.b2,
                       color: AppColors.textDateColor,

@@ -20,6 +20,7 @@ class ApiWeatherResponseDto extends Equatable {
   final SnowResponseDto? snow;
   final CloudsResponseDto clouds;
   final OwmSysResponseDto sys;
+  final int dt;
   final int timezone;
 
   factory ApiWeatherResponseDto.fromJson(final Map<String, dynamic> json) =>
@@ -34,6 +35,7 @@ class ApiWeatherResponseDto extends Equatable {
     required this.snow,
     required this.clouds,
     required this.sys,
+    required this.dt,
     required this.timezone,
   });
 
@@ -52,5 +54,7 @@ class ApiWeatherResponseDto extends Equatable {
         snow,
         clouds,
         sys,
+        dt,
+        timezone,
       ];
 }

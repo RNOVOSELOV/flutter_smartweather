@@ -81,6 +81,7 @@ class ApiRepository {
       additionalWeather:
           WeatherAdditionalDto.fromApiResponse(response: weather.right),
       forecasts: listForecasts,
+      currentTime: weather.right.dt + weather.right.timezone,
     );
 
     if (!simpleMemoryCache.containsKey(mapKey)) {

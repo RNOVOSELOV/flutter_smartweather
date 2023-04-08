@@ -84,6 +84,10 @@ class DataConverter {
     return '${_getFormattedTime(dateTime.hour)}:${_getFormattedTime(dateTime.minute)}';
   }
 
+  static DateTime getDateTimeFromUtcSeconds(int value) {
+    return DateTime.fromMillisecondsSinceEpoch(value * 1000, isUtc: true);
+  }
+
   static String _getFormattedTime(int value) {
     if (value < 10) {
       return '0$value';
@@ -126,8 +130,8 @@ class DataConverter {
     }
   }
 
-  static String getMonth() {
-    switch (DateTime.now().month) {
+  static String getMonth(int month) {
+    switch (month) {
       case 1:
         return 'января';
       case 2:
