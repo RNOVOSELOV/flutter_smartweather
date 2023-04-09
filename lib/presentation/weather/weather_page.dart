@@ -166,7 +166,8 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
                     imageId: weatherData != null ? weatherData!.id : 801,
                   ),
                   _MainWeatherInfoWidget(weather: weatherData),
-                  _DayWeatherInfoWidget(forecasts: forecasts, apiUtcTime: currentData),
+                  _DayWeatherInfoWidget(
+                      forecasts: forecasts, apiUtcTime: currentData),
                   _AdditionalWeatherInfoWidget(data: additionalWeatherData),
                 ],
               ),
@@ -199,12 +200,12 @@ class _AppBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      toolbarHeight: 56,
+      toolbarHeight: 72,
       primary: true,
       stretch: true,
       pinned: false,
       elevation: 0,
-      expandedHeight: 272,
+      expandedHeight: 288,
       excludeHeaderSemantics: true,
       backgroundColor: Colors.transparent,
       flexibleSpace: FlexibleSpaceBar(
@@ -262,23 +263,37 @@ class _LocationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56,
+      height: 72,
       color: Colors.transparent,
       alignment: Alignment.centerLeft,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(width: 28),
-          SvgPicture.asset(
-            AppImages.iconLocation,
-            width: 16,
+          const SizedBox(width: 24),
+          const Icon(
+            Icons.list,
+            size: 24,
+            color: AppColors.textWhiteColor,
           ),
           const SizedBox(width: 12),
-          Text(location,
+          Expanded(
+            child: Text(
+              location,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
               style: GoogleFonts.roboto(
                 textStyle: context.theme.b2,
                 fontWeight: FontWeight.w500,
-              )),
+              ),
+            ),
+          ),
+          const Icon(
+            Icons.add,
+            size: 24,
+            color: AppColors.textWhiteColor,
+          ),
+          const SizedBox(width: 24),
         ],
       ),
     );
