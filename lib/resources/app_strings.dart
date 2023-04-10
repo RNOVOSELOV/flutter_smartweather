@@ -23,6 +23,8 @@ class AppStrings {
       'Использование сервиса геолокации заблокировано для приложения. Дайте разрешение в настройках телефона.';
   static const String geoTimeoutError =
       'Превышено время определения местоположения';
+  static const String geoNoAddressError =
+      'Адрес отсутствует';
   static const String geoUnknownError =
       'Произошла ошибка определения местоположения';
 

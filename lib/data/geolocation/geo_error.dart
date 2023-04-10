@@ -16,6 +16,7 @@ enum GeoError {
   geoPermissionDeniedForever(
       description: AppStrings.geoPermissionDisabledForever),
   geoTimeoutError(description: AppStrings.geoTimeoutError),
+  geoNoAddressError (description: AppStrings.geoNoAddressError),
   geoUnknownError(description: AppStrings.geoUnknownError);
 
   final String description;

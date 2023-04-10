@@ -31,6 +31,7 @@ dependencies:
   cached_network_image: ^3.2.3
   email_validator: ^2.1.17
   lottie: ^2.3.2
+  yandex_mapkit: ^3.2.0
 
 dev_dependencies:
   flutter_test:

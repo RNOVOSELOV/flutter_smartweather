@@ -4,6 +4,7 @@ class AppImages {
   static const String logo = "assets/images/logo.svg";
   static const String logoM = "assets/images/mountains.json";
   static const String errorPlaceholderImage = "assets/images/little_error_weather_image.png";
+  static const String mapPlaceMarkImage = "assets/images/place_mark.png";
 
   static const String bigThunderstorm = "assets/weather_icons/thunderstorm.json";
   static const String bigLightRain = "assets/weather_icons/light_rain.json";

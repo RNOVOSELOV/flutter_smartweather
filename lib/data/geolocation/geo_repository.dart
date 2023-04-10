@@ -40,19 +40,9 @@ class GeoRepository {
     try {
       final position = await geo.getCurrentPosition();
       final currLocation = LocationDto.fromPosition(position: position);
-      final placeMark = await geo.getPositionAddress(
-        latitude: currLocation.latitude,
-        longitude: currLocation.longitude,
-      );
-      if (placeMark != null) {
-        String? location = ((placeMark.locality == null || placeMark.locality!.isEmpty)
-            ? placeMark.subAdministrativeArea
-            : placeMark.locality);
-        if (location == null || location.isEmpty) {
-          location = placeMark.administrativeArea;
-        }
-        final country = (placeMark.country ?? placeMark.isoCountryCode);
-        return Right(currLocation.copyWith(location: '$location, $country'));
+      final address = await getLocationAddress(location: currLocation);
+      if (address == null || address.isEmpty) {
+        return Right(currLocation.copyWith(location: address));
       }
       return Right(currLocation);
     } on GeoException catch (exception) {
@@ -62,5 +52,26 @@ class GeoRepository {
     } catch (err) {
       return const Left(GeoError.geoUnknownError);
     }
+  }
+
+  FutureOr<String?> getLocationAddress({required LocationDto location}) async {
+    final placeMark = await geo.getPositionAddress(
+      latitude: location.latitude,
+      longitude: location.longitude,
+    );
+    if (placeMark != null) {
+      String? location =
+          ((placeMark.locality == null || placeMark.locality!.isEmpty)
+              ? placeMark.subAdministrativeArea
+              : placeMark.locality);
+      if (location == null || location.isEmpty) {
+        location = placeMark.administrativeArea;
+      }
+      final country = (placeMark.country ?? placeMark.isoCountryCode);
+      return (location == null || location.isEmpty)
+          ? '$country'
+          : '$location, $country';
+    }
+    throw GeoException(error: GeoError.geoNoAddressError);
   }
 }
