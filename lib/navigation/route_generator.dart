@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/navigation/route_name.dart';
 import 'package:weather/presentation/add/add_page.dart';
 import 'package:weather/presentation/login/login_page.dart';
@@ -23,7 +24,7 @@ RouteFactory generateRoute() {
       case RouteName.weather:
         return _createPageRoute(const WeatherPage(), routeName);
       case RouteName.add:
-        return _createPageRoute(const AddNewLocationPage(), routeName);
+        return _createPageRoute(const AddNewLocationPage(location: LocationDto.initial()), routeName);
     }
   };
 }

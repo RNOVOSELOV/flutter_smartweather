@@ -66,6 +66,9 @@ class Geo {
       latitude,
       longitude,
       localeIdentifier: 'ru_RU',
+    ).timeout(
+      const Duration(seconds: 5),
+      onTimeout: () => throw GeoException(error: GeoError.geoTimeoutError),
     );
     if (placesList.isEmpty) {
       return null;

@@ -40,8 +40,9 @@ class GeoRepository {
     try {
       final position = await geo.getCurrentPosition();
       final currLocation = LocationDto.fromPosition(position: position);
-      final address = await getLocationAddress(location: currLocation);
-      if (address == null || address.isEmpty) {
+      final address = await getLocationAddress(
+          latitude: currLocation.latitude, longitude: currLocation.longitude);
+      if (address.isEmpty) {
         return Right(currLocation.copyWith(location: address));
       }
       return Right(currLocation);
@@ -54,10 +55,11 @@ class GeoRepository {
     }
   }
 
-  FutureOr<String?> getLocationAddress({required LocationDto location}) async {
+  FutureOr<String> getLocationAddress(
+      {required double latitude, required double longitude}) async {
     final placeMark = await geo.getPositionAddress(
-      latitude: location.latitude,
-      longitude: location.longitude,
+      latitude: latitude,
+      longitude: longitude,
     );
     if (placeMark != null) {
       String? location =
@@ -68,9 +70,15 @@ class GeoRepository {
         location = placeMark.administrativeArea;
       }
       final country = (placeMark.country ?? placeMark.isoCountryCode);
-      return (location == null || location.isEmpty)
+
+      final address = (location == null || location.isEmpty)
           ? '$country'
           : '$location, $country';
+      if (address.isNotEmpty) {
+        return address;
+      } else {
+        throw GeoException(error: GeoError.geoNoAddressError);
+      }
     }
     throw GeoException(error: GeoError.geoNoAddressError);
   }
