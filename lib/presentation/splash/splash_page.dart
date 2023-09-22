@@ -54,8 +54,11 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
             left: x,
             duration: const Duration(milliseconds: 1500),
             curve: Curves.easeInOutQuad,
-            onEnd: () => Navigator.of(context)
-                .pushReplacementNamed(RouteName.weather.route),
+            onEnd: ()
+            {
+              // Navigator.of(context)
+              //     .pushReplacementNamed(RouteName.weather.route);
+            },
             child: Lottie.asset(
               AppImages.bigSunny,
               height: 100,

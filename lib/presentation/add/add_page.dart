@@ -248,7 +248,7 @@ class _TextFieldWidgetState extends State<_TextFieldWidget> {
                   TextButton(
                       onPressed: textFieldsIsFilled ? () {} : null,
                       child: Text(
-                        'Посмотреть',
+                        'Добавить',
                         style: TextStyle(
                             color: textFieldsIsFilled
                                 ? AppColors.backgroundCardColor
