@@ -37,12 +37,23 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
 
     LocationDto location;
     final savedData = await readSavedDataFromSharedPreferences();
+    print('!!! Saved data $savedData');
     if (savedData != null) {
-      emit(WeatherNewDataState(data: savedData));
+      emit(WeatherDataState(data: savedData));
       location = savedData.location;
+      print('!!! 1');
+      await Future.delayed(
+        Duration(seconds: 1),
+        () {},
+      );
+      // TODO запросить актуальную погоду по этому местоположению
     } else {
+      print('!!! 2');
       location = const LocationDto.initial();
+      emit(const WeatherNoDataState());
     }
+    emit(WeatherEndLongOperationState());
+    return;
     final result = await updateCurrentLocationCoordinates(emit);
     if (result != null) {
       location = result;
@@ -89,7 +100,7 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     final result =
         await apiDataRepository.getWeatherForecast(location: location);
     if (result.isRight) {
-      emit(WeatherNewDataState(data: result.right));
+      emit(WeatherDataState(data: result.right));
       await locationDataRepository.setItem(result.right);
     } else {
       final apiError = result.left.errorType;

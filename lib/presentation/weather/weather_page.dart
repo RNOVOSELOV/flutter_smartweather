@@ -122,14 +122,9 @@ class _WeatherPageWidget extends StatelessWidget {
   }
 }
 
-class _WeatherWidget extends StatefulWidget {
+class _WeatherWidget extends StatelessWidget {
   const _WeatherWidget({Key? key}) : super(key: key);
 
-  @override
-  State<_WeatherWidget> createState() => _WeatherWidgetState();
-}
-
-class _WeatherWidgetState extends State<_WeatherWidget> {
   @override
   Widget build(BuildContext context) {
     bool inProgress = true;
@@ -140,6 +135,7 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
     int currentData = 10;
     return BlocBuilder<WeatherBloc, WeatherState>(
       builder: (context, state) {
+        print('!!! Buildrt $state');
         if (state is WeatherInitialState ||
             state is WeatherStartLongOperationState) {
           inProgress = true;
@@ -147,12 +143,20 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
         if (state is WeatherEndLongOperationState) {
           inProgress = false;
         }
-        if (state is WeatherNewDataState) {
+        if (state is WeatherDataState) {
           locationData = state.data.location;
           weatherData = state.data.weather;
           additionalWeatherData = state.data.additionalWeather;
           forecasts = state.data.forecasts;
           currentData = state.data.currentTime;
+          print('Data State ');
+        }
+        if (state is WeatherNoDataState) {
+          locationData = null;
+          weatherData = null;
+          additionalWeatherData = null;
+          forecasts = <ForecastDto>[];
+          currentData = DateTime.now().millisecondsSinceEpoch ~/ 1000;
         }
 
         return Stack(
@@ -166,8 +170,9 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
                     imageId: weatherData != null ? weatherData!.id : 801,
                   ),
                   _MainWeatherInfoWidget(weather: weatherData),
-                  _DayWeatherInfoWidget(
-                      forecasts: forecasts, apiUtcTime: currentData),
+                  if (forecasts.isNotEmpty)
+                    _DayWeatherInfoWidget(
+                        forecasts: forecasts, apiUtcTime: currentData),
                   _AdditionalWeatherInfoWidget(data: additionalWeatherData),
                 ],
               ),
@@ -314,7 +319,7 @@ class _MainWeatherInfoWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            weather != null ? '${weather!.temperature}º' : '',
+            weather != null ? '${weather!.temperature}º' : 'Нет данных',
             style: GoogleFonts.ubuntu(
                 fontStyle: FontStyle.normal,
                 fontWeight: FontWeight.w500,
@@ -322,9 +327,16 @@ class _MainWeatherInfoWidget extends StatelessWidget {
                 height: 72 / 64,
                 color: AppColors.textWhiteColor),
           ),
-          Text(
-            weather != null ? weather!.description : '',
-            style: context.theme.b1,
+          if (weather == null) const SizedBox(height: 32),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 38.0),
+            child: Text(
+              weather != null
+                  ? weather!.description.toUpperCase()
+                  : 'Проверьте соединение с Internet, разрешения на использование местоположения устройства',
+              textAlign: TextAlign.center,
+              style: context.theme.b1,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
