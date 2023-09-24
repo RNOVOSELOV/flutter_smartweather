@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:weather/navigation/route_name.dart';
+import 'package:weather/presentation/splash/splash_bloc.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
 
@@ -12,14 +13,17 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
-  late double x;
-  late double y;
+  late double _x;
+  late double _y;
+
+  late SplashBloc _bloc;
 
   @override
   void initState() {
     super.initState();
+    _bloc = SplashBloc ();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      y = MediaQuery.of(context).size.height / 8;
+      _y = MediaQuery.of(context).size.height / 8;
       setState(() {});
     });
   }
@@ -27,8 +31,14 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    y = -100;
-    x = MediaQuery.of(context).size.width * 0.7 - 50;
+    _y = -100;
+    _x = MediaQuery.of(context).size.width * 0.7 - 100;
+  }
+
+  @override
+  void dispose() {
+    _bloc.dispose();
+    super.dispose();
   }
 
   @override
@@ -49,18 +59,19 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
       child: Stack(
         children: [
           AnimatedPositioned(
-            top: y,
-            left: x,
-            duration: const Duration(milliseconds: 1500),
+            top: _y,
+            left: _x,
+            duration: const Duration(milliseconds: 2000),
             curve: Curves.easeInOutQuad,
             onEnd: () {
-              Navigator.of(context)
-                  .pushReplacementNamed(RouteName.weather.route);
+              // Navigator.of(context)
+              //     .pushReplacementNamed(RouteName.weather.route);
+              _bloc.splashAnimationCompleted();
             },
             child: Lottie.asset(
               AppImages.bigSunny,
-              height: 100,
-              width: 100,
+              height: 200,
+              width: 200,
             ),
           ),
           Align(

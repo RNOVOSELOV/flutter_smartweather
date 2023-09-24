@@ -17,7 +17,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   final GeoRepository geoRepository;
   final ApiRepository apiDataRepository;
-  final LocationRepository locationDataRepository;
+  final LocalWeatherStorageRepository locationDataRepository;
 
   LoginBloc({
     required this.geoRepository,

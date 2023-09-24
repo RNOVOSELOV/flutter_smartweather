@@ -39,7 +39,7 @@ void _setupApiRelatesClasses() {
 // ONLY SINGLETONS
 void _setupRepositories() {
   sl.registerLazySingleton(
-    () => LocationRepository(sl.get<LocalDataProvider>()),
+    () => LocalWeatherStorageRepository(sl.get<LocalDataProvider>()),
   );
   sl.registerLazySingleton(() => ApiRepository(sl.get<ApiDataProvider>()));
   sl.registerLazySingleton(() => GeoRepository(geo: sl.get<Geo>()));
@@ -51,12 +51,12 @@ void _setupBlocks() {
   sl.registerFactory(() => LoginBloc(
         geoRepository: sl.get<GeoRepository>(),
         apiDataRepository: sl.get<ApiRepository>(),
-        locationDataRepository: sl.get<LocationRepository>(),
+        locationDataRepository: sl.get<LocalWeatherStorageRepository>(),
       ));
   sl.registerFactory(() => WeatherBloc(
         geoRepository: sl.get<GeoRepository>(),
         apiDataRepository: sl.get<ApiRepository>(),
-        locationDataRepository: sl.get<LocationRepository>(),
+        storageWeatherDataRepository: sl.get<LocalWeatherStorageRepository>(),
       ));
   sl.registerFactory(() => AddBloc(geoRepository: sl.get<GeoRepository>()));
 }

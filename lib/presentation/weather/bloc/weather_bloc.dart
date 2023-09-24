@@ -16,14 +16,14 @@ part 'weather_state.dart';
 class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
   final GeoRepository geoRepository;
   final ApiRepository apiDataRepository;
-  final LocationRepository locationDataRepository;
+  final LocalWeatherStorageRepository storageWeatherDataRepository;
 
   late LocationDto lastRequestedLocation;
 
   WeatherBloc({
     required this.geoRepository,
     required this.apiDataRepository,
-    required this.locationDataRepository,
+    required this.storageWeatherDataRepository,
   }) : super(WeatherInitialState()) {
     on<WeatherPageLoaded>(_onWeatherPageLoaded);
     on<WeatherResendQuery>(_onWeatherResend);
@@ -76,7 +76,7 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
 
   FutureOr<LocationWeatherDto?> readSavedDataFromSharedPreferences() async {
     try {
-      return await locationDataRepository.getItem();
+      return await storageWeatherDataRepository.getItem();
     } catch (_) {
       // for future migration ... will be nullpointer if LocationWeatherDto model will be changed
       return null;
@@ -101,7 +101,7 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
         await apiDataRepository.getWeatherForecast(location: location);
     if (result.isRight) {
       emit(WeatherDataState(data: result.right));
-      await locationDataRepository.setItem(result.right);
+      await storageWeatherDataRepository.setItem(result.right);
     } else {
       final apiError = result.left.errorType;
       emit(WeatherShowApiError(
