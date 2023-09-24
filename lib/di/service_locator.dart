@@ -1,4 +1,7 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:talker_bloc_logger/talker_bloc_logger.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 import 'package:weather/data/geolocation/geo.dart';
 import 'package:weather/data/geolocation/geo_repository.dart';
 import 'package:weather/data/http/dio_builder.dart';
@@ -15,10 +18,16 @@ import 'package:weather/presentation/weather/bloc/weather_bloc.dart';
 final sl = GetIt.instance;
 
 void initServiceLocator() {
+  _setupTalkerLogger();
   _setupDataProviders();
   _setupApiRelatesClasses();
   _setupRepositories();
   _setupBlocks();
+}
+
+void _setupTalkerLogger() {
+  sl.registerLazySingleton(() => TalkerFlutter.init());
+  Bloc.observer = TalkerBlocObserver(talker: sl.get<Talker>());
 }
 
 // ONLY SINGLETONS
