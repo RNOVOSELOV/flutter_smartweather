@@ -11,20 +11,27 @@ import 'package:weather/theme/light_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
+
   initServiceLocator();
-
   FlutterError.onError = (details) => sl.get<Talker>().handle(
-    details.exception,
-    details.stack,
-  );
-//  runApp(const MyApp());
+        details.exception,
+        details.stack,
+      );
+  runApp(const MyApp());
 
-  runZonedGuarded(
-      () => const MyApp(),
-      (error, stack) => sl.get<Talker>().handle(
-            error,
-            stack,
-          ));
+  // runZonedGuarded(
+  //     () {
+  //       initServiceLocator();
+  //       FlutterError.onError = (details) => sl.get<Talker>().handle(
+  //         details.exception,
+  //         details.stack,
+  //       );
+  //       return const MyApp();
+  //     },
+  //     (error, stack) => sl.get<Talker>().handle(
+  //           error,
+  //           stack,
+  //         ));
 }
 
 class MyApp extends StatelessWidget {
