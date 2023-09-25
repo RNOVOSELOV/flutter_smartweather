@@ -296,13 +296,16 @@ class _LocationBar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(width: 24),
-          const Icon(
-            Icons.list,
-            size: 24,
-            color: AppColors.textWhiteColor,
+          const SizedBox(width: 16),
+          GestureDetector(
+            onTap: () => context.router.push(const PlacesRoute()),
+            child: const Icon(
+              Icons.list,
+              size: 24,
+              color: AppColors.textWhiteColor,
+            ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           Expanded(
             child: GestureDetector(
               onLongPress: () {
@@ -325,16 +328,16 @@ class _LocationBar extends StatelessWidget {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () =>
-                context.read<WeatherBloc>().add(const AddNewPlaceEvent()),
-            child: const Icon(
-              Icons.add,
-              size: 24,
-              color: AppColors.textWhiteColor,
-            ),
-          ),
-          const SizedBox(width: 24),
+          // GestureDetector(
+          //   onTap: () =>
+          //       context.read<WeatherBloc>().add(const AddNewPlaceEvent()),
+          //   child: const Icon(
+          //     Icons.add,
+          //     size: 24,
+          //     color: AppColors.textWhiteColor,
+          //   ),
+          // ),
+          const SizedBox(width: 16),
         ],
       ),
     );

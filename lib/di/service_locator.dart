@@ -12,6 +12,7 @@ import 'package:weather/data/storage/local_data_provider.dart';
 import 'package:weather/data/storage/repositories/location_repository.dart';
 import 'package:weather/data/storage/shared_preference_data.dart';
 import 'package:weather/presentation/add/bloc/add_bloc.dart';
+import 'package:weather/presentation/places/bloc/places_bloc.dart';
 import 'package:weather/presentation/login/bloc/login_bloc.dart';
 import 'package:weather/presentation/splash/splash_bloc.dart';
 import 'package:weather/presentation/weather/bloc/weather_bloc.dart';
@@ -76,4 +77,5 @@ void _setupBlocks() {
         storageWeatherDataRepository: sl.get<LocalWeatherStorageRepository>(),
       ));
   sl.registerFactory(() => AddBloc(geoRepository: sl.get<GeoRepository>()));
+  sl.registerFactory(() => PlacesBloc());
 }
