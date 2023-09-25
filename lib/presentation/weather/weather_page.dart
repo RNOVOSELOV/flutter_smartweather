@@ -14,6 +14,7 @@ import 'package:weather/data/dto/parameter_dto.dart';
 import 'package:weather/data/dto/weather_additional_dto.dart';
 import 'package:weather/data/dto/weather_dto.dart';
 import 'package:weather/di/service_locator.dart';
+import 'package:weather/navigation/route_name.dart';
 import 'package:weather/presentation/weather/bloc/weather_bloc.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
@@ -308,10 +309,14 @@ class _LocationBar extends StatelessWidget {
               ),
             ),
           ),
-          const Icon(
-            Icons.add,
-            size: 24,
-            color: AppColors.textWhiteColor,
+          GestureDetector(
+            onTap: () => Navigator.of(context)
+                .pushNamed(RouteName.add.route),
+            child: const Icon(
+              Icons.add,
+              size: 24,
+              color: AppColors.textWhiteColor,
+            ),
           ),
           const SizedBox(width: 24),
         ],
@@ -427,17 +432,17 @@ class _DayWeatherInfoWidget extends StatelessWidget {
                   itemBuilder: (BuildContext context, int index) {
                     return Container(
                       width: 74,
-                      decoration: index != 1
-                          ? null
-                          : BoxDecoration(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(12)),
-                              shape: BoxShape.rectangle,
-                              color: AppColors.backgroundActiveCartColor,
-                              border: Border.all(
-                                  width: 1,
-                                  color: AppColors.activeCartBorderColor),
-                            ),
+                      // decoration: index != 1
+                      //     ? null
+                      //     : BoxDecoration(
+                      //         borderRadius:
+                      //             const BorderRadius.all(Radius.circular(12)),
+                      //         shape: BoxShape.rectangle,
+                      //         color: AppColors.backgroundActiveCartColor,
+                      //         border: Border.all(
+                      //             width: 1,
+                      //             color: AppColors.activeCartBorderColor),
+                      //       ),
                       child: _CartInDayListWidget(
                           forecast: forecasts.elementAt(index)),
                     );

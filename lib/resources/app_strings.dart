@@ -52,7 +52,7 @@ class AppStrings {
   static const String windNW = 'Ветер северо-западный';
   static const String windN = 'Ветер северный';
 
-  static const String parameterTemperatureInDay = 'Диапазон температуры';
+  static const String parameterTemperatureInDay = 'Суточный диапазон';
   static const String parameterTemperature = 'Температура по ощущению';
   static const String parameterPressureLow = 'Пониженное давление';
   static const String parameterPressureHigh = 'Повышенное давление';
