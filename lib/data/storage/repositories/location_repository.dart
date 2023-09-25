@@ -3,8 +3,8 @@ import 'package:weather/data/dto/location_weather_dto.dart';
 import 'package:weather/data/storage/local_data_provider.dart';
 import 'package:weather/data/storage/repositories/reactive_repository.dart';
 
-class LocationRepository extends ReactiveRepository<LocationWeatherDto> {
-  LocationRepository(this._spDataProvider);
+class LocalWeatherStorageRepository extends ReactiveRepository<LocationWeatherDto> {
+  LocalWeatherStorageRepository(this._spDataProvider);
 
   final LocalDataProvider _spDataProvider;
 

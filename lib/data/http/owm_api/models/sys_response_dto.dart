@@ -5,8 +5,6 @@ part 'sys_response_dto.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class OwmSysResponseDto extends Equatable {
-  final num type;
-  final num id;
   final String country;
   final num sunrise;
   final num sunset;
@@ -15,8 +13,6 @@ class OwmSysResponseDto extends Equatable {
       _$OwmSysResponseDtoFromJson(json);
 
   const OwmSysResponseDto({
-    required this.type,
-    required this.id,
     required this.country,
     required this.sunrise,
     required this.sunset,
@@ -26,8 +22,6 @@ class OwmSysResponseDto extends Equatable {
 
   @override
   List<Object?> get props => [
-        type,
-        id,
         country,
         sunrise,
         sunset,

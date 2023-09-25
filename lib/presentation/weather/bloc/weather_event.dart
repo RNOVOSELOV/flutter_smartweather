@@ -17,3 +17,10 @@ class WeatherResendQuery extends WeatherEvent {
   @override
   List<Object?> get props => const [];
 }
+
+class AddNewPlaceEvent extends WeatherEvent {
+  const AddNewPlaceEvent();
+
+  @override
+  List<Object?> get props => const [];
+}

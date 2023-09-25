@@ -21,8 +21,8 @@ class BaseApiService {
   ApiError _getApiError({
     required final dynamic error,
   }) {
-    if (error is DioError) {
-      if (error.type == DioErrorType.badResponse && error.response != null) {
+    if (error is DioException) {
+      if (error.type == DioExceptionType.badResponse && error.response != null) {
         try {
           final apiError = ApiError.fromJson(error.response!.data);
           return apiError;

@@ -15,6 +15,7 @@ LocationWeatherDto _$LocationWeatherDtoFromJson(Map<String, dynamic> json) =>
       forecasts: (json['forecasts'] as List<dynamic>)
           .map((e) => ForecastDto.fromJson(e as Map<String, dynamic>))
           .toList(),
+      currentTime: json['currentTime'] as int,
     );
 
 Map<String, dynamic> _$LocationWeatherDtoToJson(LocationWeatherDto instance) =>
@@ -23,4 +24,5 @@ Map<String, dynamic> _$LocationWeatherDtoToJson(LocationWeatherDto instance) =>
       'weather': instance.weather,
       'additionalWeather': instance.additionalWeather,
       'forecasts': instance.forecasts,
+      'currentTime': instance.currentTime,
     };

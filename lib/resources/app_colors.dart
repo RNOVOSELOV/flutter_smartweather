@@ -18,6 +18,7 @@ class AppColors {
   static const Color backgroundBlurColor = heliotropeColor;
   static const Color backgroundCardColor = Color(0xFF380676);
   static const Color backgroundActiveCartColor = Color(0xFF46009C);
+  static final Color backgroundTextEditColor = backgroundCardColor.withOpacity(0.1);
 
   static const Color dividerColor = mediumPurpleColor;
   static const Color activeCartBorderColor = mediumPurpleColor;

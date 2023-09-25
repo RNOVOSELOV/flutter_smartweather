@@ -13,12 +13,14 @@ class LocationWeatherDto extends Equatable {
   final WeatherDto weather;
   final WeatherAdditionalDto additionalWeather;
   final List<ForecastDto> forecasts;
+  final int currentTime;
 
   const LocationWeatherDto({
     required this.location,
     required this.weather,
     required this.additionalWeather,
     required this.forecasts,
+    required this.currentTime,
   });
 
   LocationWeatherDto.initial()
@@ -27,6 +29,7 @@ class LocationWeatherDto extends Equatable {
           weather: const WeatherDto.initial(),
           additionalWeather: const WeatherAdditionalDto.initial(),
           forecasts: <ForecastDto>[],
+          currentTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
         );
 
   LocationWeatherDto copyWith({
@@ -34,12 +37,14 @@ class LocationWeatherDto extends Equatable {
     WeatherDto? weather,
     WeatherAdditionalDto? additional,
     List<ForecastDto>? forecasts,
+    int? secondsSinceEpoch
   }) {
     return LocationWeatherDto(
       weather: weather ?? this.weather,
       location: location ?? this.location,
       additionalWeather: additional ?? additionalWeather,
       forecasts: forecasts ?? this.forecasts,
+      currentTime: secondsSinceEpoch ?? currentTime,
     );
   }
 

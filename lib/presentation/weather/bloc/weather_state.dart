@@ -19,10 +19,17 @@ class WeatherEndLongOperationState extends WeatherState {
   List<Object?> get props => [];
 }
 
-class WeatherNewDataState extends WeatherState {
+class WeatherNoDataState extends WeatherState {
+  const WeatherNoDataState();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class WeatherDataState extends WeatherState {
   final LocationWeatherDto data;
 
-  const WeatherNewDataState({required this.data});
+  const WeatherDataState({required this.data});
 
   @override
   List<Object?> get props => [data];
@@ -45,4 +52,13 @@ class WeatherShowGeoError extends WeatherState {
 
   @override
   List<Object?> get props => [error];
+}
+
+class WeatherAddPlaceState extends WeatherState {
+  final LocationDto location;
+
+  const WeatherAddPlaceState({required this.location});
+
+  @override
+  List<Object?> get props => [location];
 }

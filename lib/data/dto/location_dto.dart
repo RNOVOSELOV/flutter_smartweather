@@ -1,6 +1,6 @@
+import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 part 'location_dto.g.dart';
 
@@ -16,10 +16,7 @@ class LocationDto extends Equatable {
       required this.location});
 
   const LocationDto.initial()
-      : this(
-            latitude: 64.550000,
-            longitude: 40.533330,
-            location: 'Архангельск, Россия');
+      : this(latitude: 55.75, longitude: 37.62, location: '');
 
   LocationDto.fromPosition({required Position position})
       : this(
