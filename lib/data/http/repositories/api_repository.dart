@@ -92,7 +92,6 @@ class ApiRepository {
         () => simpleMemoryCache.remove(mapKey),
       );
     }
-
     return Right(data);
   }
 }

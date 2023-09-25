@@ -99,13 +99,13 @@ class WeatherAdditionalDto extends Equatable {
   List<ParameterDto> toParametersList() {
     final list = <ParameterDto>[];
     list.add(ParameterDto(
-        value: '$temperatureFeelsLikeº',
-        description: AppStrings.parameterTemperature,
-        iconPath: AppImages.parameterIconThermometer));
-    list.add(ParameterDto(
         value: '$windSpeed м/с',
         description: DataConverter.getWindDirection(windDeg),
         iconPath: AppImages.parameterIconWind));
+    list.add(ParameterDto(
+        value: '$temperatureFeelsLikeº',
+        description: AppStrings.parameterTemperature,
+        iconPath: AppImages.parameterIconThermometer));
     if (windGust != null) {
       list.add(ParameterDto(
           value: '$windGust м/с',

@@ -1,13 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:css_filter/css_filter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 import 'package:weather/data/data_converter.dart';
 import 'package:weather/data/dto/forecast_dto.dart';
 import 'package:weather/data/dto/location_dto.dart';
+import 'package:weather/data/dto/parameter_dto.dart';
 import 'package:weather/data/dto/weather_additional_dto.dart';
 import 'package:weather/data/dto/weather_dto.dart';
 import 'package:weather/di/service_locator.dart';
@@ -135,7 +138,6 @@ class _WeatherWidget extends StatelessWidget {
     int currentData = 10;
     return BlocBuilder<WeatherBloc, WeatherState>(
       builder: (context, state) {
-        print('!!! Buildrt $state');
         if (state is WeatherInitialState ||
             state is WeatherStartLongOperationState) {
           inProgress = true;
@@ -173,7 +175,11 @@ class _WeatherWidget extends StatelessWidget {
                   if (forecasts.isNotEmpty)
                     _DayWeatherInfoWidget(
                         forecasts: forecasts, apiUtcTime: currentData),
-                  _AdditionalWeatherInfoWidget(data: additionalWeatherData),
+                  _AdditionalWeatherInfoWidget(
+                    data: additionalWeatherData,
+                    minTemperature: weatherData?.temperatureMin,
+                    maxTemperature: weatherData?.temperatureMax,
+                  ),
                 ],
               ),
               value: inProgress ? 2 : 0,
@@ -282,14 +288,24 @@ class _LocationBar extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              location,
-              maxLines: 2,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.roboto(
-                textStyle: context.theme.b2,
-                fontWeight: FontWeight.w500,
+            child: GestureDetector(
+              onLongPress: () {
+                if (kDebugMode) {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) =>
+                        TalkerScreen(talker: sl.get<Talker>()),
+                  ));
+                }
+              },
+              child: Text(
+                location,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.roboto(
+                  textStyle: context.theme.b2,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),
@@ -327,7 +343,7 @@ class _MainWeatherInfoWidget extends StatelessWidget {
                 height: 72 / 64,
                 color: AppColors.textWhiteColor),
           ),
-          if (weather == null) const SizedBox(height: 32),
+          const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 38.0),
             child: Text(
@@ -338,13 +354,13 @@ class _MainWeatherInfoWidget extends StatelessWidget {
               style: context.theme.b1,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            weather != null
-                ? '${AppStrings.maxTemperatureString} ${weather!.temperatureMax}º ${AppStrings.minTemperatureString} ${weather!.temperatureMin}º'
-                : '',
-            style: context.theme.b1,
-          ),
+          // const SizedBox(height: 8),
+          // Text(
+          //   weather != null
+          //       ? '${AppStrings.maxTemperatureString} ${weather!.temperatureMax}º ${AppStrings.minTemperatureString} ${weather!.temperatureMin}º'
+          //       : '',
+          //   style: context.theme.b1,
+          // ),
         ],
       ),
     );
@@ -485,9 +501,16 @@ class _CartInDayListWidget extends StatelessWidget {
 }
 
 class _AdditionalWeatherInfoWidget extends StatelessWidget {
-  const _AdditionalWeatherInfoWidget({Key? key, this.data}) : super(key: key);
+  const _AdditionalWeatherInfoWidget({
+    Key? key,
+    this.data,
+    this.minTemperature,
+    this.maxTemperature,
+  }) : super(key: key);
 
   final WeatherAdditionalDto? data;
+  final int? minTemperature;
+  final int? maxTemperature;
 
   @override
   Widget build(BuildContext context) {
@@ -496,7 +519,14 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
         child: SizedBox.shrink(),
       );
     }
-    final list = data!.toParametersList();
+    final list = [
+      ParameterDto(
+        value: '$minTemperatureº - $maxTemperatureº',
+        description: AppStrings.parameterTemperatureInDay,
+        iconPath: AppImages.parameterIconThermometer,
+      ),
+      ...data!.toParametersList()
+    ];
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.only(left: 24, right: 24, bottom: 38),
