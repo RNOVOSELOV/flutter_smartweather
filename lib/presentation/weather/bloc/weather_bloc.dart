@@ -29,6 +29,7 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     required this.storageWeatherDataRepository,
   }) : super(WeatherInitialState()) {
     on<WeatherPageLoaded>(_onWeatherPageLoaded);
+    on<AddNewPlaceEvent>(_onAddNewPlaceEvent);
     on<WeatherResendQuery>(_onWeatherResend);
   }
 
@@ -101,5 +102,10 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
       emit(WeatherShowApiError(
           message: apiError.message, canResend: apiError.canResend));
     }
+  }
+
+  FutureOr<void> _onAddNewPlaceEvent(
+      final AddNewPlaceEvent event, final Emitter<WeatherState> emit) {
+    emit(WeatherAddPlaceState(location: lastRequestedLocation));
   }
 }

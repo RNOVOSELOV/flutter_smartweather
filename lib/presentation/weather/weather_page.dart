@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:css_filter/css_filter.dart';
 import 'package:flutter/foundation.dart';
@@ -13,14 +14,16 @@ import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/dto/parameter_dto.dart';
 import 'package:weather/data/dto/weather_additional_dto.dart';
 import 'package:weather/data/dto/weather_dto.dart';
+import 'package:weather/data/geolocation/geo_error.dart';
 import 'package:weather/di/service_locator.dart';
-import 'package:weather/navigation/route_name.dart';
+import 'package:weather/navigation/router.dart';
 import 'package:weather/presentation/weather/bloc/weather_bloc.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
 import 'package:weather/resources/app_strings.dart';
 import 'package:weather/theme/theme_extensions.dart';
 
+@RoutePage()
 class WeatherPage extends StatelessWidget {
   const WeatherPage({Key? key}) : super(key: key);
 
@@ -48,8 +51,21 @@ class _WeatherPageWidget extends StatelessWidget {
           listener: (context, state) {
             if (state is WeatherShowApiError) {
               showError(context, state.message, state.canResend);
-            } else if (state is WeatherShowGeoError) {
-              state.error.handleGeoError(context);
+            }
+            if (state is WeatherShowGeoError) {
+              VoidCallback? fixProblemCallback = GeoError.getFixCallback(
+                state.error,
+                () =>
+                    context.read<WeatherBloc>().add(const WeatherResendQuery()),
+              );
+              state.error.handleGeoError(
+                context,
+                fixProblemCallback,
+              );
+            }
+            if (state is WeatherAddPlaceState) {
+              context.router
+                  .push(AddNewLocationRoute(location: state.location));
             }
           },
           child: Container(
@@ -310,8 +326,8 @@ class _LocationBar extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: () => Navigator.of(context)
-                .pushNamed(RouteName.add.route),
+            onTap: () =>
+                context.read<WeatherBloc>().add(const AddNewPlaceEvent()),
             child: const Icon(
               Icons.add,
               size: 24,
@@ -430,19 +446,8 @@ class _DayWeatherInfoWidget extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   itemCount: forecasts.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return Container(
+                    return SizedBox(
                       width: 74,
-                      // decoration: index != 1
-                      //     ? null
-                      //     : BoxDecoration(
-                      //         borderRadius:
-                      //             const BorderRadius.all(Radius.circular(12)),
-                      //         shape: BoxShape.rectangle,
-                      //         color: AppColors.backgroundActiveCartColor,
-                      //         border: Border.all(
-                      //             width: 1,
-                      //             color: AppColors.activeCartBorderColor),
-                      //       ),
                       child: _CartInDayListWidget(
                           forecast: forecasts.elementAt(index)),
                     );

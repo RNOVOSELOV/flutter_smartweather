@@ -22,7 +22,6 @@ class GeoRepository {
     if (!geoPermissionsGranted) {
       geoPermissionsGranted = await geo.tryRequestPermission();
     }
-    print('!!! GEO INIT $geoServiceIsActive $geoPermissionsGranted ');
   }
 
   FutureOr<LocationDto?> getLastKnownPosition() async {

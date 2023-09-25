@@ -1,5 +1,5 @@
-import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:weather/data/http/owm_api/models/clouds_response_dto.dart';
 import 'package:weather/data/http/owm_api/models/main_weather_response_dto.dart';
 import 'package:weather/data/http/owm_api/models/rain_response_dto.dart';
@@ -22,6 +22,7 @@ class ApiWeatherResponseDto extends Equatable {
   final OwmSysResponseDto sys;
   final int dt;
   final int timezone;
+  final String name;
 
   factory ApiWeatherResponseDto.fromJson(final Map<String, dynamic> json) =>
       _$ApiWeatherResponseDtoFromJson(json);
@@ -37,6 +38,7 @@ class ApiWeatherResponseDto extends Equatable {
     required this.sys,
     required this.dt,
     required this.timezone,
+    required this.name,
   });
 
   Map<String, dynamic> toJson() => _$ApiWeatherResponseDtoToJson(this);
@@ -46,6 +48,7 @@ class ApiWeatherResponseDto extends Equatable {
 
   @override
   List<Object?> get props => [
+        name,
         weather,
         main,
         visibility,

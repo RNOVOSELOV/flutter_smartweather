@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weather/di/service_locator.dart';
-import 'package:weather/navigation/route_name.dart';
 import 'package:weather/presentation/login/bloc/login_bloc.dart';
 import 'package:weather/presentation/login/models/login_errors.dart';
 import 'package:weather/resources/app_colors.dart';
@@ -55,8 +54,9 @@ class _LoginPageWidgetState extends State<_LoginPageWidget> {
         BlocListener<LoginBloc, LoginState>(
           listener: (context, state) {
             if (state.authenticated) {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                  RouteName.weather.route, (route) => false);
+              // TODO ROUTE
+              // Navigator.of(context).pushNamedAndRemoveUntil(
+              //     RouteName.weather.route, (route) => false);
             }
           },
         ),

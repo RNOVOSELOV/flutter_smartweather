@@ -1,15 +1,18 @@
 import 'dart:async';
 
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/di/service_locator.dart';
 import 'package:weather/presentation/add/bloc/add_bloc.dart';
+import 'package:weather/presentation/weather/bloc/weather_bloc.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
+@RoutePage()
 class AddNewLocationPage extends StatelessWidget {
   final LocationDto location;
 
@@ -24,7 +27,7 @@ class AddNewLocationPage extends StatelessWidget {
       child: BlocListener<AddBloc, AddState>(
         listener: (context, state) {
           if (state is AddShowGeoErrorState) {
-            state.error.handleGeoError(context);
+            state.error.handleGeoError(context, null);
           }
         },
         child: const _AddNewLocationPage(),

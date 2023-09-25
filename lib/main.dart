@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:weather/di/service_locator.dart';
-import 'package:weather/navigation/route_generator.dart';
+import 'package:weather/navigation/router.dart';
 import 'package:weather/theme/light_theme.dart';
 
 void main() async {
@@ -23,12 +23,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    final appRouter = AppRouter();
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(),
       title: 'Smart Weather',
-      onGenerateRoute: generateRoute(),
-      navigatorObservers: [TalkerRouteObserver(sl.get<Talker>())],
+      routerConfig: appRouter.config(
+        navigatorObservers: () => [TalkerRouteObserver(sl.get<Talker>())],
+      ),
     );
   }
 

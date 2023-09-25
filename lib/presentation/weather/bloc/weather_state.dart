@@ -53,3 +53,12 @@ class WeatherShowGeoError extends WeatherState {
   @override
   List<Object?> get props => [error];
 }
+
+class WeatherAddPlaceState extends WeatherState {
+  final LocationDto location;
+
+  const WeatherAddPlaceState({required this.location});
+
+  @override
+  List<Object?> get props => [location];
+}

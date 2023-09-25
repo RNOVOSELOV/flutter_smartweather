@@ -27,6 +27,7 @@ ApiWeatherResponseDto _$ApiWeatherResponseDtoFromJson(
       sys: OwmSysResponseDto.fromJson(json['sys'] as Map<String, dynamic>),
       dt: json['dt'] as int,
       timezone: json['timezone'] as int,
+      name: json['name'] as String,
     );
 
 Map<String, dynamic> _$ApiWeatherResponseDtoToJson(
@@ -42,4 +43,5 @@ Map<String, dynamic> _$ApiWeatherResponseDtoToJson(
       'sys': instance.sys,
       'dt': instance.dt,
       'timezone': instance.timezone,
+      'name': instance.name,
     };

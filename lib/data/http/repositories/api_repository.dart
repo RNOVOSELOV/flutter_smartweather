@@ -38,7 +38,7 @@ class ApiRepository {
   }
 
   Future<Either<ApiError, LocationWeatherDto>> getWeatherForecast(
-      {required final LocationDto location}) async {
+      {required LocationDto location}) async {
     String mapKey = location.toString();
     if (simpleMemoryCache.containsKey(mapKey)) {
       final value = simpleMemoryCache[mapKey];
@@ -75,6 +75,9 @@ class ApiRepository {
       temperatureMin: minTemperatureInDay,
       temperatureMax: maxTemperatureInDay,
     );
+    if (location.location.isEmpty) {
+      location = location.copyWith(location: weather.right.name);
+    }
     LocationWeatherDto data = LocationWeatherDto(
       location: location,
       weather: weatherDto,

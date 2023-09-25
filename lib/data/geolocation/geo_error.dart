@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:weather/resources/app_colors.dart';
@@ -16,15 +18,14 @@ enum GeoError {
   geoPermissionDeniedForever(
       description: AppStrings.geoPermissionDisabledForever),
   geoTimeoutError(description: AppStrings.geoTimeoutError),
-  geoNoAddressError (description: AppStrings.geoNoAddressError),
+  geoNoAddressError(description: AppStrings.geoNoAddressError),
   geoUnknownError(description: AppStrings.geoUnknownError);
 
   final String description;
 
   const GeoError({required this.description});
 
-  void handleGeoError(BuildContext context) {
-    VoidCallback? fixProblemCallback = GeoError.getFixCallback(this);
+  FutureOr<void> handleGeoError(BuildContext context, VoidCallback? callback) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -33,19 +34,19 @@ enum GeoError {
             Flexible(
               child: Text(
                 description,
-                textAlign: fixProblemCallback == null
+                textAlign: callback == null
                     ? TextAlign.center
                     : TextAlign.center,
                 style: context.theme.b2,
               ),
             ),
-            if (fixProblemCallback != null)
+            if (callback != null)
               const SizedBox(
                 width: 12,
               ),
-            if (fixProblemCallback != null)
+            if (callback != null)
               ElevatedButton(
-                  onPressed: fixProblemCallback,
+                  onPressed: callback,
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4),
@@ -80,15 +81,18 @@ enum GeoError {
     );
   }
 
-  static VoidCallback? getFixCallback(final GeoError error) {
+  static VoidCallback? getFixCallback(
+      final GeoError error, VoidCallback? callback) {
     if (error == GeoError.geoServiceDisabled) {
       return () async {
         await Geolocator.openLocationSettings();
+        callback;
       };
     } else if (error == GeoError.geoPermissionDenied ||
         error == GeoError.geoPermissionDeniedForever) {
       return () async {
         await Geolocator.openAppSettings();
+        callback;
       };
     }
     return null;

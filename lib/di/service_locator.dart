@@ -13,6 +13,7 @@ import 'package:weather/data/storage/repositories/location_repository.dart';
 import 'package:weather/data/storage/shared_preference_data.dart';
 import 'package:weather/presentation/add/bloc/add_bloc.dart';
 import 'package:weather/presentation/login/bloc/login_bloc.dart';
+import 'package:weather/presentation/splash/splash_bloc.dart';
 import 'package:weather/presentation/weather/bloc/weather_bloc.dart';
 
 final sl = GetIt.instance;
@@ -56,7 +57,13 @@ void _setupRepositories() {
 
 // ONLY FACTORIES
 void _setupBlocks() {
-  // Bloc.observer = SimpleBlocObserver();
+  sl.registerFactory(
+    () => SplashBloc(
+      storageWeatherDataRepository: sl.get<LocalWeatherStorageRepository>(),
+      apiDataRepository: sl.get<ApiRepository>(),
+      talker: sl.get<Talker>(),
+    ),
+  );
   sl.registerFactory(() => LoginBloc(
         geoRepository: sl.get<GeoRepository>(),
         apiDataRepository: sl.get<ApiRepository>(),
