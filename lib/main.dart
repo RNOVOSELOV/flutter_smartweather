@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,20 +16,6 @@ void main() async {
         details.stack,
       );
   runApp(const MyApp());
-
-  // runZonedGuarded(
-  //     () {
-  //       initServiceLocator();
-  //       FlutterError.onError = (details) => sl.get<Talker>().handle(
-  //         details.exception,
-  //         details.stack,
-  //       );
-  //       return const MyApp();
-  //     },
-  //     (error, stack) => sl.get<Talker>().handle(
-  //           error,
-  //           stack,
-  //         ));
 }
 
 class MyApp extends StatelessWidget {

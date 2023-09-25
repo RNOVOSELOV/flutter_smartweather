@@ -5,25 +5,53 @@ import 'package:weather/presentation/splash/splash_bloc.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
 
-class SplashPage extends StatefulWidget {
+class SplashPage extends StatelessWidget {
   const SplashPage({Key? key}) : super(key: key);
 
   @override
-  State<SplashPage> createState() => _SplashPageState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.backgroundTopGradientColor,
+              AppColors.backgroundEndGradientColor
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: const _AnimationWidget(),
+      ),
+    );
+  }
 }
 
-class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
+class _AnimationWidget extends StatefulWidget {
+  const _AnimationWidget({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<_AnimationWidget> createState() => _AnimationWidgetState();
+}
+
+class _AnimationWidgetState extends State<_AnimationWidget> {
+  static const double sunSize = 200;
+
   late double _x;
   late double _y;
 
-  late SplashBloc _bloc;
+  late final SplashBloc _bloc;
 
   @override
   void initState() {
     super.initState();
-    _bloc = SplashBloc ();
+    _bloc = SplashBloc();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _y = MediaQuery.of(context).size.height / 8;
+      _y = MediaQuery.of(context).size.height / 20;
       setState(() {});
     });
   }
@@ -31,8 +59,8 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _y = -100;
-    _x = MediaQuery.of(context).size.width * 0.7 - 100;
+    _y = (-1) * sunSize;
+    _x = MediaQuery.of(context).size.width * 0.7 - (sunSize / 2);
   }
 
   @override
@@ -43,48 +71,51 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.backgroundTopGradientColor,
-            AppColors.backgroundEndGradientColor
+    return StreamBuilder<SplashPageState>(
+      stream: _bloc.observeSplashPageState(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
+        final splashPageState = snapshot.data!;
+        switch (splashPageState) {
+          case SplashPageState.completedState:
+            WidgetsBinding.instance.addPostFrameCallback((_) =>
+                Navigator.of(context)
+                    .pushReplacementNamed(RouteName.weather.route));
+            break;
+          case SplashPageState.internalLogicState:
+            // TODO: Handle this case.
+            break;
+        }
+        return Stack(
+          children: [
+            AnimatedPositioned(
+              top: _y,
+              left: _x,
+              duration: const Duration(milliseconds: 2000),
+              curve: Curves.easeOutQuint,
+              onEnd: () {
+                _bloc.splashAnimationCompleted();
+              },
+              child: Lottie.asset(
+                AppImages.bigSunny,
+                height: sunSize,
+                width: sunSize,
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Lottie.asset(
+                AppImages.logoM,
+                height: MediaQuery.of(context).size.height * 0.7,
+                fit: BoxFit.fitHeight,
+                animate: true,
+              ),
+            ),
           ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Stack(
-        children: [
-          AnimatedPositioned(
-            top: _y,
-            left: _x,
-            duration: const Duration(milliseconds: 2000),
-            curve: Curves.easeInOutQuad,
-            onEnd: () {
-              // Navigator.of(context)
-              //     .pushReplacementNamed(RouteName.weather.route);
-              _bloc.splashAnimationCompleted();
-            },
-            child: Lottie.asset(
-              AppImages.bigSunny,
-              height: 200,
-              width: 200,
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Lottie.asset(
-              AppImages.logoM,
-              height: 200,
-              fit: BoxFit.fitHeight,
-              animate: true,
-            ),
-          )
-        ],
-      ),
-    ));
+        );
+      },
+    );
   }
 }
