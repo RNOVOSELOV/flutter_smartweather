@@ -43,9 +43,9 @@ class GeoRepository {
       final address = await getLocationAddress(
           latitude: currLocation.latitude, longitude: currLocation.longitude);
       if (address.isEmpty) {
-        return Right(currLocation.copyWith(location: address));
+        return Right(currLocation);
       }
-      return Right(currLocation);
+      return Right(currLocation.copyWith(location: address));
     } on GeoException catch (exception) {
       return Left(exception.error);
     } on TimeoutException {

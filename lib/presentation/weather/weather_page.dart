@@ -151,7 +151,6 @@ class _WeatherWidget extends StatelessWidget {
           additionalWeatherData = state.data.additionalWeather;
           forecasts = state.data.forecasts;
           currentData = state.data.currentTime;
-          print('Data State ');
         }
         if (state is WeatherNoDataState) {
           locationData = null;

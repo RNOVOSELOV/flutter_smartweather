@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/dto/location_weather_dto.dart';
 import 'package:weather/data/geolocation/geo_error.dart';
@@ -17,10 +18,12 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
   final GeoRepository geoRepository;
   final ApiRepository apiDataRepository;
   final LocalWeatherStorageRepository storageWeatherDataRepository;
+  final Talker talker;
 
   late LocationDto lastRequestedLocation;
 
   WeatherBloc({
+    required this.talker,
     required this.geoRepository,
     required this.apiDataRepository,
     required this.storageWeatherDataRepository,
@@ -34,30 +37,21 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     final Emitter<WeatherState> emit,
   ) async {
     emit(WeatherStartLongOperationState());
-
     LocationDto location;
     final savedData = await readSavedDataFromSharedPreferences();
-    print('!!! Saved data $savedData');
+    talker.info('Saved data location: ${savedData?.location}');
     if (savedData != null) {
       emit(WeatherDataState(data: savedData));
       location = savedData.location;
-      print('!!! 1');
-      await Future.delayed(
-        Duration(seconds: 1),
-        () {},
-      );
-      // TODO запросить актуальную погоду по этому местоположению
     } else {
-      print('!!! 2');
-      location = const LocationDto.initial();
       emit(const WeatherNoDataState());
+      location = const LocationDto.initial();
     }
-    emit(WeatherEndLongOperationState());
-    return;
     final result = await updateCurrentLocationCoordinates(emit);
     if (result != null) {
       location = result;
     }
+    talker.info('Updated location: $location');
     await updateWeatherData(location, emit);
     lastRequestedLocation = location;
     emit(WeatherEndLongOperationState());
