@@ -146,23 +146,30 @@ class _PlaceWeatherContainer extends StatelessWidget {
                 color: AppColors.textWhiteColor),
           ),
           CachedNetworkImage(
-            height: 64,
-            width: 64,
-            placeholder: (context, url) => const Padding(
-              padding: EdgeInsets.only(left: 8),
-              child: CircularProgressIndicator(
-                color: AppColors.lightPink,
-              ),
+            placeholder: (context, url) => Row(
+              children: [
+                const SizedBox(width: 12),
+                Container(
+                  height: 64,
+                  width: 64,
+                  padding: const EdgeInsets.all(12),
+                  child: const CircularProgressIndicator(
+                    color: AppColors.lightPink,
+                  ),
+                ),
+              ],
             ),
             imageUrl: 'https://openweathermap.org/img/wn/10d@2x.png',
-            imageBuilder: (context, imageProvider) => Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Image(
-                image: imageProvider,
-                width: 64,
-                height: 64,
-                fit: BoxFit.fill,
-              ),
+            imageBuilder: (context, imageProvider) => Row(
+              children: [
+                const SizedBox(width: 12),
+                Image(
+                  image: imageProvider,
+                  width: 64,
+                  height: 64,
+                  fit: BoxFit.fill,
+                ),
+              ],
             ),
             errorWidget: (context, url, error) => const SizedBox.shrink(),
           ),
