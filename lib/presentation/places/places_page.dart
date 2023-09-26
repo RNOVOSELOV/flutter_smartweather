@@ -1,9 +1,10 @@
-import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:weather/di/service_locator.dart';
+import 'package:weather/navigation/router.dart';
 import 'package:weather/presentation/places/bloc/places_bloc.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/theme/theme_extensions.dart';
@@ -59,31 +60,60 @@ class _PlacesWidget extends StatelessWidget {
                   height: 12,
                 ),
               ),
-              SliverList.separated(
-                itemCount: 2,
-                separatorBuilder: (BuildContext context, int index) {
-                  return const SizedBox(height: 8);
-                },
-                itemBuilder: (BuildContext context, int index) {
-                  if (index == 0) {
-                    return const _PlaceWeatherContainer(isCurrentPlace: true);
-                  } else if (index == 1) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 12),
-                        Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 32),
-                            width: double.infinity,
-                            child: Text(
-                              'Сохраненные местоположения',
-                              textAlign: TextAlign.left,
-                              style: context.theme.b2.copyWith(
-                                  color: AppColors.whiteColor.withAlpha(180)),
-                            )),
-                      ],
+              BlocBuilder<PlacesBloc, PlacesState>(
+                builder: (context, state) {
+                  if (state is PlacesDataState) {
+                    final favorites = state.favorites;
+                    return SliverList.separated(
+                      itemCount: 1 + 1 + favorites.length,
+                      separatorBuilder: (BuildContext context, int index) {
+                        return const SizedBox(height: 8);
+                      },
+                      itemBuilder: (BuildContext context, int index) {
+                        if (index == 0) {
+                          return GestureDetector(
+                            onTap: () => context.router.replaceAll([
+                              WeatherRoute()]),
+                            child: _PlaceWeatherContainer(
+                                placeName: state.currentPlace.location,
+                                temperature: state.currentPlace.temperature,
+                                icon: state.currentPlace.icon,
+                                isCurrentPlace: true),
+                          );
+                        } else if (index == 1) {
+                          return favorites.isEmpty
+                              ? const SizedBox.shrink()
+                              : Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const SizedBox(height: 12),
+                                    Container(
+                                        margin: const EdgeInsets.symmetric(
+                                            horizontal: 32),
+                                        width: double.infinity,
+                                        child: Text(
+                                          'Сохраненные местоположения',
+                                          textAlign: TextAlign.left,
+                                          style: context.theme.b2.copyWith(
+                                              color: AppColors.whiteColor
+                                                  .withAlpha(210)),
+                                        )),
+                                  ],
+                                );
+                        } else {
+                          return _PlaceWeatherContainer(
+                            placeName: favorites.elementAt(index - 2).location,
+                            temperature:
+                                favorites.elementAt(index - 2).temperature,
+                            icon: favorites.elementAt(index - 2).icon,
+                            isCurrentPlace: false,
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
                     );
                   }
+                  return const SliverToBoxAdapter(child: SizedBox.shrink());
                 },
               ),
             ],
@@ -98,9 +128,15 @@ class _PlaceWeatherContainer extends StatelessWidget {
   const _PlaceWeatherContainer({
     Key? key,
     required this.isCurrentPlace,
+    required this.placeName,
+    required this.temperature,
+    required this.icon,
   }) : super(key: key);
 
   final bool isCurrentPlace;
+  final String placeName;
+  final int temperature;
+  final String icon;
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +144,7 @@ class _PlaceWeatherContainer extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: AppColors.backgroundCardColor,
+        color: AppColors.coolGreyColor,
         shape: BoxShape.rectangle,
         borderRadius: const BorderRadius.all(Radius.circular(20)),
         border: Border.all(
@@ -119,50 +155,60 @@ class _PlaceWeatherContainer extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.max,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (isCurrentPlace)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isCurrentPlace)
+                  Text(
+                    'Текущее местоположение',
+                    style: context.theme.b3
+                        .copyWith(color: AppColors.whiteColor.withAlpha(210)),
+                  ),
+                if (isCurrentPlace) const SizedBox(height: 8),
                 Text(
-                  'Текущее местоположение',
-                  style: context.theme.b3
-                      .copyWith(color: AppColors.whiteColor.withAlpha(180)),
+                  placeName,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.theme.h2,
                 ),
-              if (isCurrentPlace) const SizedBox(height: 8),
-              Text(
-                'Nizhny Novgorod',
-                style: context.theme.h2,
-              ),
-            ],
+              ],
+            ),
           ),
-          const Spacer(),
+          const SizedBox(width: 4),
           Text(
-            '23º',
+            '$temperatureº',
             style: GoogleFonts.ubuntu(
                 fontStyle: FontStyle.normal,
                 fontWeight: FontWeight.w500,
-                fontSize: 32,
-                height: 36 / 32,
+                fontSize: 24,
+                height: 28 / 24,
                 color: AppColors.textWhiteColor),
           ),
           CachedNetworkImage(
-            height: 64,
-            width: 64,
-            placeholder: (context, url) => const Padding(
-              padding: EdgeInsets.only(left: 8),
-              child: CircularProgressIndicator(
-                color: AppColors.lightPink,
-              ),
+            placeholder: (context, url) => Row(
+              children: [
+                const SizedBox(width: 4),
+                Container(
+                  height: 64,
+                  width: 64,
+                  padding: const EdgeInsets.all(12),
+                  child: const CircularProgressIndicator(
+                    color: AppColors.lightPink,
+                  ),
+                ),
+              ],
             ),
-            imageUrl: 'https://openweathermap.org/img/wn/10d@2x.png',
-            imageBuilder: (context, imageProvider) => Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Image(
-                image: imageProvider,
-                width: 64,
-                height: 64,
-                fit: BoxFit.fill,
-              ),
+            imageUrl: icon, //'https://openweathermap.org/img/wn/10d@2x.png',
+            imageBuilder: (context, imageProvider) => Row(
+              children: [
+                const SizedBox(width: 4),
+                Image(
+                  image: imageProvider,
+                  width: 64,
+                  height: 64,
+                  fit: BoxFit.fill,
+                ),
+              ],
             ),
             errorWidget: (context, url, error) => const SizedBox.shrink(),
           ),

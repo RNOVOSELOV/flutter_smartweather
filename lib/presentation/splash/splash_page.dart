@@ -59,7 +59,7 @@ class _SplashPageState extends State<SplashPage> {
                 switch (splashPageState) {
                   case SplashPageState.completedState:
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      context.router.replace(const WeatherRoute());
+                      context.router.replace(WeatherRoute());
                     });
                     return const SizedBox.shrink();
                   case SplashPageState.internalLogicState:

@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:weather/data/data_converter.dart';
+import 'package:weather/data/dto/favorite_data_dto.dart';
 import 'package:weather/data/dto/forecast_dto.dart';
 import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/dto/parameter_dto.dart';
@@ -25,12 +26,14 @@ import 'package:weather/theme/theme_extensions.dart';
 
 @RoutePage()
 class WeatherPage extends StatelessWidget {
-  const WeatherPage({Key? key}) : super(key: key);
+  const WeatherPage({Key? key, this.locationData}) : super(key: key);
+
+  final FavoriteDataDto? locationData;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl.get<WeatherBloc>()..add(const WeatherPageLoaded()),
+      create: (_) => sl.get<WeatherBloc>()..add(WeatherPageLoaded(data: locationData)),
       child: const _WeatherPageWidget(),
     );
   }

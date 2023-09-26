@@ -5,10 +5,12 @@ abstract class WeatherEvent extends Equatable {
 }
 
 class WeatherPageLoaded extends WeatherEvent {
-  const WeatherPageLoaded();
+  final FavoriteDataDto? data;
+
+  const WeatherPageLoaded({required this.data});
 
   @override
-  List<Object?> get props => const [];
+  List<Object?> get props => [data];
 }
 
 class WeatherResendQuery extends WeatherEvent {
