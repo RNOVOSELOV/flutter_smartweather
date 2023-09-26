@@ -8,12 +8,14 @@ import 'package:weather/data/http/dio_builder.dart';
 import 'package:weather/data/http/owm_api/api_data_provider.dart';
 import 'package:weather/data/http/owm_api/owm_api_service.dart';
 import 'package:weather/data/http/repositories/api_repository.dart';
+import 'package:weather/data/storage/favorites_data_provider.dart';
 import 'package:weather/data/storage/local_data_provider.dart';
+import 'package:weather/data/storage/repositories/favorite_repository.dart';
 import 'package:weather/data/storage/repositories/location_repository.dart';
 import 'package:weather/data/storage/shared_preference_data.dart';
 import 'package:weather/presentation/add/bloc/add_bloc.dart';
-import 'package:weather/presentation/places/bloc/places_bloc.dart';
 import 'package:weather/presentation/login/bloc/login_bloc.dart';
+import 'package:weather/presentation/places/bloc/places_bloc.dart';
 import 'package:weather/presentation/splash/splash_bloc.dart';
 import 'package:weather/presentation/weather/bloc/weather_bloc.dart';
 
@@ -39,6 +41,9 @@ void _setupDataProviders() {
   sl.registerLazySingleton<LocalDataProvider>(
     () => sl.get<SharedPreferenceData>(),
   );
+  sl.registerLazySingleton<FavoriteDataProvider>(
+    () => sl.get<SharedPreferenceData>(),
+  );
 }
 
 void _setupApiRelatesClasses() {
@@ -51,6 +56,9 @@ void _setupApiRelatesClasses() {
 void _setupRepositories() {
   sl.registerLazySingleton(
     () => LocalWeatherStorageRepository(sl.get<LocalDataProvider>()),
+  );
+  sl.registerLazySingleton(
+    () => FavoriteWeatherRepository(sl.get<FavoriteDataProvider>()),
   );
   sl.registerLazySingleton(() => ApiRepository(sl.get<ApiDataProvider>()));
   sl.registerLazySingleton(() => GeoRepository(geo: sl.get<Geo>()));
@@ -74,8 +82,15 @@ void _setupBlocks() {
         talker: sl.get<Talker>(),
         geoRepository: sl.get<GeoRepository>(),
         apiDataRepository: sl.get<ApiRepository>(),
-        storageWeatherDataRepository: sl.get<LocalWeatherStorageRepository>(),
+        currentLocationWeatherRepository:
+            sl.get<LocalWeatherStorageRepository>(),
       ));
   sl.registerFactory(() => AddBloc(geoRepository: sl.get<GeoRepository>()));
-  sl.registerFactory(() => PlacesBloc());
+  sl.registerFactory(() => PlacesBloc(
+        talker: sl.get<Talker>(),
+        apiDataRepository: sl.get<ApiRepository>(),
+        currentLocationWeatherRepository:
+            sl.get<LocalWeatherStorageRepository>(),
+        favoriteRepository: sl.get<FavoriteWeatherRepository>(),
+      ));
 }
