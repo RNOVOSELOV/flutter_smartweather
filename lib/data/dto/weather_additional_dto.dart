@@ -1,9 +1,8 @@
-import 'package:dio/dio.dart';
-import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:weather/data/data_converter.dart';
-import 'package:weather/data/http/owm_api/models/api_weather_response_dto.dart';
 import 'package:weather/data/dto/parameter_dto.dart';
+import 'package:weather/data/http/owm_api/models/api_weather_response_dto.dart';
 import 'package:weather/resources/app_images.dart';
 import 'package:weather/resources/app_strings.dart';
 
@@ -70,43 +69,26 @@ class WeatherAdditionalDto extends Equatable {
           visibility: response.visibility.toInt(),
           windSpeed: response.wind.speed.toInt(),
           windDeg: response.wind.deg.toInt(),
-          windGust:
-              response.wind.gust != null ? response.wind.gust!.toInt() : null,
+          windGust: response.wind.gust?.toInt(),
           cloudsInPercent: response.clouds.all.toInt(),
           sunriseTime: response.sys.sunrise.toInt() + response.timezone,
           sunsetTime: response.sys.sunset.toInt() + response.timezone,
-          rainOneHour: response.rain != null
-              ? (response.rain!.oneHour != null
-                  ? response.rain!.oneHour!.toInt()
-                  : null)
-              : null,
-          rainThreeHours: response.rain != null
-              ? (response.rain!.threeHours != null
-                  ? response.rain!.threeHours!.toInt()
-                  : null)
-              : null,
-          snowOneHour: response.snow != null
-              ? (response.snow!.oneHour != null
-                  ? response.snow!.oneHour!.toInt()
-                  : null)
-              : null,
-          snowThreeHours: response.snow != null
-              ? (response.snow!.threeHours != null
-                  ? response.snow!.threeHours!.toInt()
-                  : null)
-              : null,
+          rainOneHour: response.rain?.oneHour?.toInt(),
+          rainThreeHours: response.rain?.threeHours?.toInt(),
+          snowOneHour: response.snow?.oneHour?.toInt(),
+          snowThreeHours: response.snow?.threeHours?.toInt(),
         );
 
   List<ParameterDto> toParametersList() {
     final list = <ParameterDto>[];
     list.add(ParameterDto(
-        value: '$temperatureFeelsLikeº',
-        description: AppStrings.parameterTemperature,
-        iconPath: AppImages.parameterIconThermometer));
-    list.add(ParameterDto(
         value: '$windSpeed м/с',
         description: DataConverter.getWindDirection(windDeg),
         iconPath: AppImages.parameterIconWind));
+    list.add(ParameterDto(
+        value: '$temperatureFeelsLikeº',
+        description: AppStrings.parameterTemperature,
+        iconPath: AppImages.parameterIconThermometer));
     if (windGust != null) {
       list.add(ParameterDto(
           value: '$windGust м/с',
@@ -122,7 +104,7 @@ class WeatherAdditionalDto extends Equatable {
         description: DataConverter.getHumidity(humidity),
         iconPath: AppImages.parameterIconDrop));
     list.add(ParameterDto(
-        value: '${visibility/1000} км',
+        value: '${visibility / 1000} км',
         description: DataConverter.getVisibility(visibility),
         iconPath: AppImages.parameterIconVisibility));
     list.add(ParameterDto(

@@ -5,31 +5,50 @@ class DataConverter {
   DataConverter._();
 
   static String getBigWeatherIcon(int id) {
-    if (id < 299) {
-      return AppImages.bigIconThunderstorm;
-    } else if (id <= 311) {
-      return AppImages.bigIconLowRain;
-    }else if (id < 399) {
-      return AppImages.bigIconRain;
+    if (id <= 299) {
+      return AppImages.bigThunderstorm;
+    } else if (id <= 301) {
+      return AppImages.bigLightRain;
+    } else if (id <= 310) {
+      return AppImages.bigModerateRain;
+    } else if (id <= 312) {
+      return AppImages.bigHeavyRain;
+    } else if (id <= 321) {
+      return AppImages.bigRainStorm;
+    } else if (id == 511) {
+      return AppImages.bigSnowRain;
+    } else if (id <= 501) {
+      return AppImages.bigLightRainSun;
+    } else if (id == 502) {
+      return AppImages.bigModerateRain;
     } else if (id <= 504) {
-      return AppImages.bigIconSunWithRain;
+      return AppImages.bigHeavyRain;
     } else if (id <= 599) {
-      return AppImages.bigIconRainfall;
+      return AppImages.bigRainStorm;
+    } else if (id == 600) {
+      return AppImages.bigLightSnowSun;
+    } else if (id == 601) {
+      return AppImages.bigModerateSnow;
+    } else if (id == 602) {
+      return AppImages.bigHeavySnow;
+    } else if (id <= 616) {
+      return AppImages.bigSnowRain;
+    } else if (id == 620) {
+      return AppImages.bigLightSnow;
+    } else if (id == 621) {
+      return AppImages.bigModerateSnow;
     } else if (id <= 699) {
-      return AppImages.bigIconSnow;
+      return AppImages.bigHeavySnow;
+    } else if (id == 701 || id == 711 || id == 721 || id == 741) {
+      return AppImages.bigSmog;
+    } else if (id <= 799) {
+      return AppImages.bigSandDust;
     } else if (id == 800) {
-      return AppImages.bigIconSun;
-    } else if (id == 801) {
-      return AppImages.bigIconSunWithCloud;
-    } else if (id == 802) {
-      return AppImages.bigIconCloud;
-    } else if (id == 803) {
-      return AppImages.bigIconClouds;
-    } else if (id == 804) {
-      return AppImages.bigIconClouds;
-    } else {
-      return AppImages.bigIconClouds;
+      return AppImages.bigSunny;
+    } else if (id >= 802) {
+      return AppImages.bigClouds;
     }
+    return AppImages.bigCloudsSun;
   }
 
   static String getHumidity(int value) {
@@ -63,6 +82,10 @@ class DataConverter {
     final dateTime =
         DateTime.fromMillisecondsSinceEpoch(value * 1000, isUtc: true);
     return '${_getFormattedTime(dateTime.hour)}:${_getFormattedTime(dateTime.minute)}';
+  }
+
+  static DateTime getDateTimeFromUtcSeconds(int value) {
+    return DateTime.fromMillisecondsSinceEpoch(value * 1000, isUtc: true);
   }
 
   static String _getFormattedTime(int value) {
@@ -107,8 +130,8 @@ class DataConverter {
     }
   }
 
-  static String getMonth() {
-    switch (DateTime.now().month) {
+  static String getMonth(int month) {
+    switch (month) {
       case 1:
         return 'января';
       case 2:

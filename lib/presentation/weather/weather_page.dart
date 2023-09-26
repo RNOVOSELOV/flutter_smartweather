@@ -1,21 +1,29 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:css_filter/css_filter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 import 'package:weather/data/data_converter.dart';
 import 'package:weather/data/dto/forecast_dto.dart';
 import 'package:weather/data/dto/location_dto.dart';
+import 'package:weather/data/dto/parameter_dto.dart';
 import 'package:weather/data/dto/weather_additional_dto.dart';
 import 'package:weather/data/dto/weather_dto.dart';
+import 'package:weather/data/geolocation/geo_error.dart';
 import 'package:weather/di/service_locator.dart';
+import 'package:weather/navigation/router.dart';
 import 'package:weather/presentation/weather/bloc/weather_bloc.dart';
 import 'package:weather/resources/app_colors.dart';
 import 'package:weather/resources/app_images.dart';
 import 'package:weather/resources/app_strings.dart';
 import 'package:weather/theme/theme_extensions.dart';
 
+@RoutePage()
 class WeatherPage extends StatelessWidget {
   const WeatherPage({Key? key}) : super(key: key);
 
@@ -43,8 +51,21 @@ class _WeatherPageWidget extends StatelessWidget {
           listener: (context, state) {
             if (state is WeatherShowApiError) {
               showError(context, state.message, state.canResend);
-            } else if (state is WeatherShowGeoError) {
-              state.error.handleGeoError(context);
+            }
+            if (state is WeatherShowGeoError) {
+              VoidCallback? fixProblemCallback = GeoError.getFixCallback(
+                state.error,
+                () =>
+                    context.read<WeatherBloc>().add(const WeatherResendQuery()),
+              );
+              state.error.handleGeoError(
+                context,
+                fixProblemCallback,
+              );
+            }
+            if (state is WeatherAddPlaceState) {
+              context.router
+                  .push(AddNewLocationRoute(location: state.location));
             }
           },
           child: Container(
@@ -121,14 +142,9 @@ class _WeatherPageWidget extends StatelessWidget {
   }
 }
 
-class _WeatherWidget extends StatefulWidget {
+class _WeatherWidget extends StatelessWidget {
   const _WeatherWidget({Key? key}) : super(key: key);
 
-  @override
-  State<_WeatherWidget> createState() => _WeatherWidgetState();
-}
-
-class _WeatherWidgetState extends State<_WeatherWidget> {
   @override
   Widget build(BuildContext context) {
     bool inProgress = true;
@@ -136,6 +152,7 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
     WeatherDto? weatherData;
     WeatherAdditionalDto? additionalWeatherData;
     List<ForecastDto> forecasts = <ForecastDto>[];
+    int currentData = 10;
     return BlocBuilder<WeatherBloc, WeatherState>(
       builder: (context, state) {
         if (state is WeatherInitialState ||
@@ -145,11 +162,19 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
         if (state is WeatherEndLongOperationState) {
           inProgress = false;
         }
-        if (state is WeatherNewDataState) {
+        if (state is WeatherDataState) {
           locationData = state.data.location;
           weatherData = state.data.weather;
           additionalWeatherData = state.data.additionalWeather;
           forecasts = state.data.forecasts;
+          currentData = state.data.currentTime;
+        }
+        if (state is WeatherNoDataState) {
+          locationData = null;
+          weatherData = null;
+          additionalWeatherData = null;
+          forecasts = <ForecastDto>[];
+          currentData = DateTime.now().millisecondsSinceEpoch ~/ 1000;
         }
 
         return Stack(
@@ -163,8 +188,14 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
                     imageId: weatherData != null ? weatherData!.id : 801,
                   ),
                   _MainWeatherInfoWidget(weather: weatherData),
-                  _DayWeatherInfoWidget(forecasts: forecasts),
-                  _AdditionalWeatherInfoWidget(data: additionalWeatherData),
+                  if (forecasts.isNotEmpty)
+                    _DayWeatherInfoWidget(
+                        forecasts: forecasts, apiUtcTime: currentData),
+                  _AdditionalWeatherInfoWidget(
+                    data: additionalWeatherData,
+                    minTemperature: weatherData?.temperatureMin,
+                    maxTemperature: weatherData?.temperatureMax,
+                  ),
                 ],
               ),
               value: inProgress ? 2 : 0,
@@ -196,12 +227,12 @@ class _AppBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      toolbarHeight: 56,
+      toolbarHeight: 72,
       primary: true,
       stretch: true,
       pinned: false,
       elevation: 0,
-      expandedHeight: 272,
+      expandedHeight: 288,
       excludeHeaderSemantics: true,
       backgroundColor: Colors.transparent,
       flexibleSpace: FlexibleSpaceBar(
@@ -234,7 +265,7 @@ class _AppBarWidget extends StatelessWidget {
                   ),
                   Align(
                     alignment: Alignment.bottomCenter,
-                    child: Image.asset(
+                    child: Lottie.asset(
                       DataConverter.getBigWeatherIcon(imageId),
                       height: 180,
                       width: 180,
@@ -259,23 +290,54 @@ class _LocationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56,
+      height: 72,
       color: Colors.transparent,
       alignment: Alignment.centerLeft,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(width: 28),
-          SvgPicture.asset(
-            AppImages.iconLocation,
-            width: 16,
+          const SizedBox(width: 16),
+          GestureDetector(
+            onTap: () => context.router.push(const PlacesRoute()),
+            child: const Icon(
+              Icons.list,
+              size: 24,
+              color: AppColors.textWhiteColor,
+            ),
           ),
-          const SizedBox(width: 12),
-          Text(location,
-              style: GoogleFonts.roboto(
-                textStyle: context.theme.b2,
-                fontWeight: FontWeight.w500,
-              )),
+          const SizedBox(width: 8),
+          Expanded(
+            child: GestureDetector(
+              onLongPress: () {
+                if (kDebugMode) {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) =>
+                        TalkerScreen(talker: sl.get<Talker>()),
+                  ));
+                }
+              },
+              child: Text(
+                location,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.roboto(
+                  textStyle: context.theme.b2,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          // GestureDetector(
+          //   onTap: () =>
+          //       context.read<WeatherBloc>().add(const AddNewPlaceEvent()),
+          //   child: const Icon(
+          //     Icons.add,
+          //     size: 24,
+          //     color: AppColors.textWhiteColor,
+          //   ),
+          // ),
+          const SizedBox(width: 16),
         ],
       ),
     );
@@ -296,7 +358,7 @@ class _MainWeatherInfoWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            weather != null ? '${weather!.temperature}º' : '',
+            weather != null ? '${weather!.temperature}º' : 'Нет данных',
             style: GoogleFonts.ubuntu(
                 fontStyle: FontStyle.normal,
                 fontWeight: FontWeight.w500,
@@ -304,17 +366,24 @@ class _MainWeatherInfoWidget extends StatelessWidget {
                 height: 72 / 64,
                 color: AppColors.textWhiteColor),
           ),
-          Text(
-            weather != null ? weather!.description : '',
-            style: context.theme.b1,
-          ),
           const SizedBox(height: 8),
-          Text(
-            weather != null
-                ? '${AppStrings.maxTemperatureString} ${weather!.temperatureMax}º ${AppStrings.minTemperatureString} ${weather!.temperatureMin}º'
-                : '',
-            style: context.theme.b1,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 38.0),
+            child: Text(
+              weather != null
+                  ? weather!.description.toUpperCase()
+                  : 'Проверьте соединение с Internet, разрешения на использование местоположения устройства',
+              textAlign: TextAlign.center,
+              style: context.theme.b1,
+            ),
           ),
+          // const SizedBox(height: 8),
+          // Text(
+          //   weather != null
+          //       ? '${AppStrings.maxTemperatureString} ${weather!.temperatureMax}º ${AppStrings.minTemperatureString} ${weather!.temperatureMin}º'
+          //       : '',
+          //   style: context.theme.b1,
+          // ),
         ],
       ),
     );
@@ -325,9 +394,11 @@ class _DayWeatherInfoWidget extends StatelessWidget {
   const _DayWeatherInfoWidget({
     Key? key,
     required this.forecasts,
+    required this.apiUtcTime,
   }) : super(key: key);
 
   final List<ForecastDto> forecasts;
+  final int apiUtcTime;
 
   @override
   Widget build(BuildContext context) {
@@ -356,7 +427,7 @@ class _DayWeatherInfoWidget extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${DateTime.now().day} ${DataConverter.getMonth()}',
+                    '${DataConverter.getDateTimeFromUtcSeconds(apiUtcTime).day} ${DataConverter.getMonth(DataConverter.getDateTimeFromUtcSeconds(apiUtcTime).month)}',
                     style: GoogleFonts.roboto(
                       textStyle: context.theme.b2,
                       color: AppColors.textDateColor,
@@ -378,19 +449,8 @@ class _DayWeatherInfoWidget extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   itemCount: forecasts.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return Container(
+                    return SizedBox(
                       width: 74,
-                      decoration: index != 1
-                          ? null
-                          : BoxDecoration(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(12)),
-                              shape: BoxShape.rectangle,
-                              color: AppColors.backgroundActiveCartColor,
-                              border: Border.all(
-                                  width: 1,
-                                  color: AppColors.activeCartBorderColor),
-                            ),
                       child: _CartInDayListWidget(
                           forecast: forecasts.elementAt(index)),
                     );
@@ -435,7 +495,7 @@ class _CartInDayListWidget extends StatelessWidget {
           errorWidget: (context, url, error) => Padding(
             padding: const EdgeInsets.all(8),
             child: Image.asset(
-              AppImages.iconCloudSun,
+              AppImages.errorPlaceholderImage,
             ),
           ),
         ),
@@ -453,9 +513,16 @@ class _CartInDayListWidget extends StatelessWidget {
 }
 
 class _AdditionalWeatherInfoWidget extends StatelessWidget {
-  const _AdditionalWeatherInfoWidget({Key? key, this.data}) : super(key: key);
+  const _AdditionalWeatherInfoWidget({
+    Key? key,
+    this.data,
+    this.minTemperature,
+    this.maxTemperature,
+  }) : super(key: key);
 
   final WeatherAdditionalDto? data;
+  final int? minTemperature;
+  final int? maxTemperature;
 
   @override
   Widget build(BuildContext context) {
@@ -464,7 +531,14 @@ class _AdditionalWeatherInfoWidget extends StatelessWidget {
         child: SizedBox.shrink(),
       );
     }
-    final list = data!.toParametersList();
+    final list = [
+      ParameterDto(
+        value: '$minTemperatureº - $maxTemperatureº',
+        description: AppStrings.parameterTemperatureInDay,
+        iconPath: AppImages.parameterIconThermometer,
+      ),
+      ...data!.toParametersList()
+    ];
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.only(left: 24, right: 24, bottom: 38),

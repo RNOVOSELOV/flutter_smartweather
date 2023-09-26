@@ -23,6 +23,8 @@ class AppStrings {
       'Использование сервиса геолокации заблокировано для приложения. Дайте разрешение в настройках телефона.';
   static const String geoTimeoutError =
       'Превышено время определения местоположения';
+  static const String geoNoAddressError =
+      'Адрес отсутствует';
   static const String geoUnknownError =
       'Произошла ошибка определения местоположения';
 
@@ -50,6 +52,7 @@ class AppStrings {
   static const String windNW = 'Ветер северо-западный';
   static const String windN = 'Ветер северный';
 
+  static const String parameterTemperatureInDay = 'Суточный диапазон';
   static const String parameterTemperature = 'Температура по ощущению';
   static const String parameterPressureLow = 'Пониженное давление';
   static const String parameterPressureHigh = 'Повышенное давление';
