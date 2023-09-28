@@ -61,6 +61,7 @@ class _PlacesWidget extends StatelessWidget {
                       if (state is PlacesDataState) {
                         return GestureDetector(
                           onTap: () async {
+                            final bloc = context.read<PlacesBloc>();
                             final result =
                                 await context.router.push(AddNewLocationRoute(
                                     location: LocationDto(
@@ -68,7 +69,8 @@ class _PlacesWidget extends StatelessWidget {
                               latitude: state.currentPlace.latitude,
                               longitude: state.currentPlace.longitude,
                             )));
-                            print('!!!! $result');
+                            bloc.add(PlacesAddNewFavoritesLocation(
+                                locationDto: result as LocationDto));
                           },
                           child: const Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16.0),

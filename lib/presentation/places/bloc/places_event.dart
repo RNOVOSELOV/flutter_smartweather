@@ -10,3 +10,12 @@ class PlacesPageLoaded extends PlacesEvent {
   @override
   List<Object?> get props => const [];
 }
+
+class PlacesAddNewFavoritesLocation extends PlacesEvent {
+  final LocationDto locationDto;
+
+  const PlacesAddNewFavoritesLocation({required this.locationDto});
+
+  @override
+  List<Object?> get props => [locationDto];
+}

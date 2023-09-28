@@ -288,6 +288,9 @@ class _TextFieldWidgetState extends State<_TextFieldWidget> {
                                 longitude: locations.elementAt(index).longitude,
                                 latitude: locations.elementAt(index).latitude,
                               )));
+                          locations.clear();
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          setState(() {});
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
