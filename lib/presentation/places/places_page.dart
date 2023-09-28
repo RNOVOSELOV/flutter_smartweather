@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/di/service_locator.dart';
 import 'package:weather/navigation/router.dart';
 import 'package:weather/presentation/places/bloc/places_bloc.dart';
@@ -44,16 +45,44 @@ class _PlacesWidget extends StatelessWidget {
           ),
           CustomScrollView(
             slivers: [
-              const SliverAppBar(
+              SliverAppBar(
                 primary: true,
                 stretch: true,
-                pinned: true,
+                pinned: false,
                 floating: true,
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 centerTitle: true,
                 foregroundColor: AppColors.whiteColor,
-                title: Text('Избранное'),
+                title: const Text('Избранное'),
+                actions: [
+                  BlocBuilder<PlacesBloc, PlacesState>(
+                    builder: (context, state) {
+                      if (state is PlacesDataState) {
+                        return GestureDetector(
+                          onTap: () async {
+                            final result =
+                                await context.router.push(AddNewLocationRoute(
+                                    location: LocationDto(
+                              location: state.currentPlace.location,
+                              latitude: state.currentPlace.latitude,
+                              longitude: state.currentPlace.longitude,
+                            )));
+                            print('!!!! $result');
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Icon(
+                              Icons.add,
+                              color: AppColors.textWhiteColor,
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ],
               ),
               const SliverToBoxAdapter(
                 child: SizedBox(
@@ -72,8 +101,8 @@ class _PlacesWidget extends StatelessWidget {
                       itemBuilder: (BuildContext context, int index) {
                         if (index == 0) {
                           return GestureDetector(
-                            onTap: () => context.router.replaceAll([
-                              WeatherRoute()]),
+                            onTap: () =>
+                                context.router.replaceAll([WeatherRoute()]),
                             child: _PlaceWeatherContainer(
                                 placeName: state.currentPlace.location,
                                 temperature: state.currentPlace.temperature,

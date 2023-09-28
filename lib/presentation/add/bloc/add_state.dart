@@ -48,3 +48,12 @@ class AddShowGeoErrorState extends AddState {
   @override
   List<Object?> get props => [error, inProgress];
 }
+
+class AddReturnPlaceNameState extends AddState {
+  final LocationDto location;
+
+  const AddReturnPlaceNameState({required this.location});
+
+  @override
+  List<Object> get props => [location];
+}

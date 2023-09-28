@@ -54,23 +54,26 @@ final lightTheme = _base.copyWith(
     selectionHandleColor: AppColors.cursorColor,
   ),
   inputDecorationTheme: _base.inputDecorationTheme.copyWith(
+    filled: true,
+    fillColor: AppColors.coolGreyColor.withOpacity(0.8),
+    isDense: true,
     errorStyle: const TextStyle(
       color: AppColors.hintErrorColor,
     ),
-    contentPadding: const EdgeInsets.only(top: 5, bottom: 11),
-    border: const UnderlineInputBorder(
-      borderSide: BorderSide(color: AppColors.brightGrayColor, width: 1),
-      borderRadius: BorderRadius.all(Radius.circular(0.5)),
+    contentPadding: const EdgeInsets.symmetric(vertical: 8),
+    border: const OutlineInputBorder(
+      borderSide: BorderSide(color: AppColors.coolGreyColor, width: 1),
+      borderRadius: BorderRadius.all(Radius.circular(16)),
     ),
-    focusedBorder: const UnderlineInputBorder(
-      borderSide: BorderSide(color: AppColors.grapeColor, width: 2),
-      borderRadius: BorderRadius.all(Radius.circular(0.5)),
+    focusedBorder: const OutlineInputBorder(
+      borderSide: BorderSide(color: AppColors.coolGreyColor, width: 2),
+      borderRadius: BorderRadius.all(Radius.circular(16)),
     ),
-    errorBorder: const UnderlineInputBorder(
+    errorBorder: const OutlineInputBorder(
       borderSide: BorderSide(color: AppColors.lightPink, width: 1),
-      borderRadius: BorderRadius.all(Radius.circular(0.5)),
+      borderRadius: BorderRadius.all(Radius.circular(16)),
     ),
-    focusedErrorBorder: const UnderlineInputBorder(
+    focusedErrorBorder: const OutlineInputBorder(
       borderSide: BorderSide(color: AppColors.lightPink, width: 2),
       borderRadius: BorderRadius.all(Radius.circular(0.5)),
     ),

@@ -331,15 +331,6 @@ class _LocationBar extends StatelessWidget {
               ),
             ),
           ),
-          // GestureDetector(
-          //   onTap: () =>
-          //       context.read<WeatherBloc>().add(const AddNewPlaceEvent()),
-          //   child: const Icon(
-          //     Icons.add,
-          //     size: 24,
-          //     color: AppColors.textWhiteColor,
-          //   ),
-          // ),
           const SizedBox(width: 16),
         ],
       ),

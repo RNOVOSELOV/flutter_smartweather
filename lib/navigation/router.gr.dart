@@ -16,7 +16,8 @@ abstract class _$AppRouter extends RootStackRouter {
   @override
   final Map<String, PageFactory> pagesMap = {
     AddNewLocationRoute.name: (routeData) {
-      final args = routeData.argsAs<AddNewLocationRouteArgs>();
+      final args = routeData.argsAs<AddNewLocationRouteArgs>(
+          orElse: () => const AddNewLocationRouteArgs());
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: AddNewLocationPage(
@@ -56,7 +57,7 @@ abstract class _$AppRouter extends RootStackRouter {
 class AddNewLocationRoute extends PageRouteInfo<AddNewLocationRouteArgs> {
   AddNewLocationRoute({
     Key? key,
-    required LocationDto location,
+    LocationDto? location,
     List<PageRouteInfo>? children,
   }) : super(
           AddNewLocationRoute.name,
@@ -76,12 +77,12 @@ class AddNewLocationRoute extends PageRouteInfo<AddNewLocationRouteArgs> {
 class AddNewLocationRouteArgs {
   const AddNewLocationRouteArgs({
     this.key,
-    required this.location,
+    this.location,
   });
 
   final Key? key;
 
-  final LocationDto location;
+  final LocationDto? location;
 
   @override
   String toString() {

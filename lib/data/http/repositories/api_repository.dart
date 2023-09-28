@@ -97,4 +97,19 @@ class ApiRepository {
     }
     return Right(data);
   }
+
+  Future<Either<ApiError, List<LocationDto>>> getLocations(
+      final String locationPart) async {
+    final result = await _apiDataProvider.getAddressesByPart(
+        locationPartialName: locationPart);
+    if (result.isLeft) {
+      return Left(result.left);
+    }
+    return Right(result.right
+        .map((location) => LocationDto(
+            latitude: location.latitude.toDouble(),
+            longitude: location.longitude.toDouble(),
+            location: '${location.name}, ${location.state}'))
+        .toList());
+  }
 }

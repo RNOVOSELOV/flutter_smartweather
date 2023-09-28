@@ -85,7 +85,7 @@ void _setupBlocks() {
         currentLocationWeatherRepository:
             sl.get<LocalWeatherStorageRepository>(),
       ));
-  sl.registerFactory(() => AddBloc(geoRepository: sl.get<GeoRepository>()));
+  sl.registerFactory(() => AddBloc(geoRepository: sl.get<GeoRepository>(), apiDataRepository: sl.get<ApiRepository>(),));
   sl.registerFactory(() => PlacesBloc(
         talker: sl.get<Talker>(),
         apiDataRepository: sl.get<ApiRepository>(),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:either_dart/either.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -7,6 +9,7 @@ import 'package:weather/data/http/owm_api/base_api_service.dart';
 import 'package:weather/data/http/owm_api/models/api_error.dart';
 import 'package:weather/data/http/owm_api/models/api_forecast_response_dto.dart';
 import 'package:weather/data/http/owm_api/models/api_weather_response_dto.dart';
+import 'package:weather/data/http/owm_api/models/geocoding_location.dart';
 
 class OwmApiService extends BaseApiService implements ApiDataProvider {
   static const String _countForecasts = '8';
@@ -31,7 +34,7 @@ class OwmApiService extends BaseApiService implements ApiDataProvider {
       {required final LocationDto location}) async {
     return responseOrError(request: () async {
       final response = await _dio.get(
-        '/weather',
+        '/data/2.5/weather',
         queryParameters: {
           'lat': location.latitude,
           'lon': location.longitude,
@@ -50,7 +53,7 @@ class OwmApiService extends BaseApiService implements ApiDataProvider {
       {required final LocationDto location}) async {
     return responseOrError(request: () async {
       final response = await _dio.get(
-        '/forecast',
+        '/data/2.5/forecast',
         queryParameters: {
           'lat': location.latitude,
           'lon': location.longitude,
@@ -62,6 +65,24 @@ class OwmApiService extends BaseApiService implements ApiDataProvider {
         },
       );
       return ApiForecastResponseDto.fromJson(response.data);
+    });
+  }
+
+  //https://api.openweathermap.org/geo/1.0/direct?q=Mosco&limit=4&appid=9e7183ff3d8bab45584106cb20688dff
+  @override
+  Future<Either<ApiError, List<GeocodingLocationDto>>> getAddressesByPart(
+      {required final String locationPartialName}) async {
+    return responseOrError(request: () async {
+      final response = await _dio.get(
+        '/geo/1.0/direct',
+        queryParameters: {
+          'q': locationPartialName,
+          'limit': 5,
+          'appid': _apiKey ?? 'nonexistenttoken',
+        },
+      );
+      final  www = response.data as Iterable;
+      return www.map((e) => GeocodingLocationDto.fromJson(e)).toList();
     });
   }
 }
