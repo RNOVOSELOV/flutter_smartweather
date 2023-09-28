@@ -19,7 +19,7 @@ class DioBuilder {
 //    if (kDebugMode) {
     _dio.interceptors.add(
       TalkerDioLogger(
-        settings: const TalkerDioLoggerSettings(printResponseData: true),
+        settings: const TalkerDioLoggerSettings(printResponseData: false),
         talker: sl.get<Talker>(),
       ),
     );

@@ -26,8 +26,9 @@ class AddBloc extends Bloc<AddEvent, AddState> {
     on<AddPageLoadedEvent>(_onPageLoaded);
     on<AddPageMapPlaceholderSetEvent>(_onMapPlaceholderSet);
     on<AddPageSelectPoint>(_onMapPointSelected);
+    on<AddPageLocationSelected>(_onMapLocationSelected);
     on<AddPageTextEditChanged>(_onMapPointNameChanged,
-        transformer: debounceSequential(const Duration(milliseconds: 400)));
+        transformer: debounceSequential(const Duration(milliseconds: 600)));
   }
 
   EventTransformer<Event> debounceSequential<Event>(Duration duration) {
@@ -80,13 +81,14 @@ class AddBloc extends Bloc<AddEvent, AddState> {
       final AddPageTextEditChanged event, final Emitter<AddState> emit) async {
     final result = await apiDataRepository.getLocations(event.value);
     if (result.isRight) {
-      print('!!! ${result.right}');
-      // emit(WeatherDataState(data: result.right));
+      emit(AddShowSearchedLocations(locations: result.right));
     } else {
-      final apiError = result.left.errorType;
-      print('!!! ${result.left}');
-      // emit(WeatherShowApiError(
-      //     message: apiError.message, canResend: apiError.canResend));
+      emit(const AddShowSearchedLocations(locations: <LocationDto>[]));
     }
+  }
+
+  FutureOr<void> _onMapLocationSelected(
+      final AddPageLocationSelected event, final Emitter<AddState> emit) {
+    emit(AddSetPlaceholderOnMapState(point: event.point));
   }
 }

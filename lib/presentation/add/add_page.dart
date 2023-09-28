@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather/data/dto/location_dto.dart';
@@ -23,9 +22,7 @@ class AddNewLocationPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => sl.get<AddBloc>()
         ..add(AddPageLoadedEvent(
-            location: location ??
-                LocationDto(
-                    latitude: 32, longitude: 55, location: 'location'))),
+            location: location ?? const LocationDto.initial())),
       child: const _AddPageBaseWidget(),
     );
   }
@@ -137,6 +134,16 @@ class _AddNewLocationPageState extends State<_AddNewLocationPage> {
             inProgress = state.inProgress;
             location = state.location;
           }
+          if (state is AddSetPlaceholderOnMapState) {
+            FocusManager.instance.primaryFocus?.unfocus();
+            _createPlaceMarkMapObject(state.point);
+            _moveToCurrentLocation(
+                latitude: state.point.latitude,
+                longitude: state.point.longitude);
+            context
+                .read<AddBloc>()
+                .add(AddPageMapPlaceholderSetEvent(point: state.point));
+          }
           return Stack(
             children: [
               YandexMap(
@@ -154,26 +161,12 @@ class _AddNewLocationPageState extends State<_AddNewLocationPage> {
                   }
                 },
                 onMapTap: (point) {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  _createPlaceMarkMapObject(point);
-                  _moveToCurrentLocation(
-                      latitude: point.latitude, longitude: point.longitude);
                   context
                       .read<AddBloc>()
-                      .add(AddPageMapPlaceholderSetEvent(point: point));
+                      .add(AddPageLocationSelected(point: point));
                 },
               ),
               const _TextFieldWidget(),
-              // _ZoomPanel(
-              //   zoomInCallback: () async {
-              //     await controller.moveCamera(CameraUpdate.zoomIn(),
-              //         animation: animation);
-              //   },
-              //   zoomOutCallback: () async {
-              //     await controller.moveCamera(CameraUpdate.zoomOut(),
-              //         animation: animation);
-              //   },
-              // ),
               if (inProgress)
                 const Center(
                   child: CircularProgressIndicator(
@@ -213,7 +206,6 @@ class _AddNewLocationPageState extends State<_AddNewLocationPage> {
             scale: 1.5,
             image: BitmapDescriptor.fromAssetImage(
                 AppImages.mapPlaceMarkImage)))));
-    setState(() {});
   }
 }
 
@@ -226,7 +218,7 @@ class _TextFieldWidget extends StatefulWidget {
 
 class _TextFieldWidgetState extends State<_TextFieldWidget> {
   bool textFieldsIsFilled = false;
-  bool placesListIsVisible = false;
+  final locations = <LocationDto>[];
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -241,8 +233,14 @@ class _TextFieldWidgetState extends State<_TextFieldWidget> {
               textFieldsIsFilled = true;
               setState(() {});
             }
+            if (state is AddShowSearchedLocations) {
+              locations.clear();
+              locations.addAll(state.locations);
+              setState(() {});
+            }
           },
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: _controller,
@@ -260,6 +258,8 @@ class _TextFieldWidgetState extends State<_TextFieldWidget> {
                       onTap: () {
                         _controller.text = '';
                         textFieldsIsFilled = false;
+                        locations.clear();
+                        FocusManager.instance.primaryFocus?.unfocus();
                         setState(() {});
                       },
                       child: const Icon(
@@ -276,106 +276,57 @@ class _TextFieldWidgetState extends State<_TextFieldWidget> {
                     .read<AddBloc>()
                     .add(AddPageTextEditChanged(value: value)),
               ),
-              if (placesListIsVisible)
-                ListView.separated(
+              const SizedBox(height: 1),
+              if (locations.isNotEmpty)
+                ListView.builder(
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        color: AppColors.backgroundTextEditColor,
-                        child: Text('$index',
+                      return GestureDetector(
+                        onTap: () {
+                          context.read<AddBloc>().add(AddPageLocationSelected(
+                                  point: Point(
+                                longitude: locations.elementAt(index).longitude,
+                                latitude: locations.elementAt(index).latitude,
+                              )));
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.only(
+                              topLeft: index == 0
+                                  ? const Radius.circular(16)
+                                  : Radius.zero,
+                              topRight: index == 0
+                                  ? const Radius.circular(16)
+                                  : Radius.zero,
+                              bottomLeft: index == locations.length - 1
+                                  ? const Radius.circular(16)
+                                  : Radius.zero,
+                              bottomRight: index == locations.length - 1
+                                  ? const Radius.circular(16)
+                                  : Radius.zero,
+                            ),
+                            color: AppColors.coolGreyColor.withOpacity(0.8),
+                          ),
+                          child: Text(
+                            locations.elementAt(index).location,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontWeight: FontWeight.w400,
-                              fontSize: 20,
-                              color: AppColors.backgroundCardColor,
-                            )),
-                      );
-                    },
-                    separatorBuilder: (_, __) {
-                      return Container(
-                        color: AppColors.backgroundTextEditColor,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: Divider(
-                            color: AppColors.backgroundCardColor,
-                            thickness: 1,
-                            height: 1,
+                              color: AppColors.whiteColor,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                       );
                     },
-                    itemCount: 5),
-              // Row(
-              //   mainAxisSize: MainAxisSize.max,
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     TextButton(
-              //         onPressed: textFieldsIsFilled ? () {} : null,
-              //         child: Text(
-              //           'Добавить',
-              //           style: TextStyle(
-              //               color: textFieldsIsFilled
-              //                   ? AppColors.backgroundCardColor
-              //                   : AppColors.coolGreyColor),
-              //         )),
-              //     TextButton(
-              //         onPressed: () => Navigator.of(context).pop(),
-              //         child: const Text(
-              //           'Отмена',
-              //           style: TextStyle(color: AppColors.backgroundCardColor),
-              //         )),
-              //   ],
-              // )
+                    itemCount: locations.length),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ZoomPanel extends StatelessWidget {
-  const _ZoomPanel(
-      {Key? key, required this.zoomInCallback, required this.zoomOutCallback})
-      : super(key: key);
-
-  final AsyncCallback zoomInCallback;
-  final AsyncCallback zoomOutCallback;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomRight,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          GestureDetector(
-            onTap: zoomInCallback,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
-              child: Icon(
-                Icons.zoom_in_map,
-                size: 24,
-                color: AppColors.backgroundCardColor,
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 24,
-          ),
-          GestureDetector(
-            onTap: zoomOutCallback,
-            child: const Padding(
-              padding: EdgeInsets.only(right: 24, left: 24, bottom: 48),
-              child: Icon(
-                Icons.zoom_out_map_outlined,
-                size: 24,
-                color: AppColors.backgroundCardColor,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -31,9 +31,20 @@ class AddPageTextEditChanged extends AddEvent {
   List<Object?> get props => [];
 }
 
+class AddPageLocationSelected extends AddEvent {
+  const AddPageLocationSelected({required this.point});
+
+  final Point point;
+
+  @override
+  List<Object?> get props => [point];
+}
+
 class AddPageSelectPoint extends AddEvent {
   const AddPageSelectPoint();
 
   @override
   List<Object?> get props => [];
 }
+
+

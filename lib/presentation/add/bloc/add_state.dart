@@ -49,6 +49,24 @@ class AddShowGeoErrorState extends AddState {
   List<Object?> get props => [error, inProgress];
 }
 
+class AddShowSearchedLocations extends AddState {
+  final List<LocationDto> locations;
+
+  const AddShowSearchedLocations({required this.locations});
+
+  @override
+  List<Object?> get props => [locations];
+}
+
+class AddSetPlaceholderOnMapState extends AddState {
+  final Point point;
+
+  const AddSetPlaceholderOnMapState({required this.point});
+
+  @override
+  List<Object?> get props => [point];
+}
+
 class AddReturnPlaceNameState extends AddState {
   final LocationDto location;
 
