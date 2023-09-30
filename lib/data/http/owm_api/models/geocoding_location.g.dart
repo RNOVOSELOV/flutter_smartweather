@@ -9,8 +9,8 @@ part of 'geocoding_location.dart';
 GeocodingLocationDto _$GeocodingLocationDtoFromJson(
         Map<String, dynamic> json) =>
     GeocodingLocationDto(
-      latitude: (json['lat'] as num).toDouble(),
-      longitude: (json['lon'] as num).toDouble(),
+      latitude: json['lat'] as num,
+      longitude: json['lon'] as num,
       name: json['name'] as String,
       state: json['state'] as String,
     );

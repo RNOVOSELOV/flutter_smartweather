@@ -3,8 +3,6 @@ import 'package:talker_dio_logger/talker_dio_logger.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:weather/di/service_locator.dart';
 
-//https://api.openweathermap.org/data/2.5  /weather?lat={lat}&lon={lon}&appid={API key}
-//        api.openweathermap.org/data/2.5  /forecast?lat={lat}&lon={lon}&appid={API key}
 class DioBuilder {
   final Dio _dio = Dio(
     BaseOptions(

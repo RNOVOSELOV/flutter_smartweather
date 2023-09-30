@@ -26,14 +26,12 @@ import 'package:weather/theme/theme_extensions.dart';
 
 @RoutePage()
 class WeatherPage extends StatelessWidget {
-  const WeatherPage({Key? key, this.locationData}) : super(key: key);
-
-  final FavoriteDataDto? locationData;
+  const WeatherPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl.get<WeatherBloc>()..add(WeatherPageLoaded(data: locationData)),
+      create: (_) => sl.get<WeatherBloc>()..add(WeatherPageLoaded()),
       child: const _WeatherPageWidget(),
     );
   }
@@ -301,7 +299,20 @@ class _LocationBar extends StatelessWidget {
         children: [
           const SizedBox(width: 16),
           GestureDetector(
-            onTap: () => context.router.push(const PlacesRoute()),
+            onTap: () async {
+              final bloc = context.read<WeatherBloc>();
+              final result = await context.router.push(const PlacesRoute());
+              final data = result as FavoriteDataDto?;
+              if (data == null) {
+                bloc.add(const WeatherPageLoaded());
+              } else {
+                bloc.add(SelectFavoriteLocationEvent(
+                    locationDto: LocationDto(
+                        latitude: data.latitude,
+                        longitude: data.longitude,
+                        location: data.location)));
+              }
+            },
             child: const Icon(
               Icons.list,
               size: 24,

@@ -68,7 +68,6 @@ class OwmApiService extends BaseApiService implements ApiDataProvider {
     });
   }
 
-  //https://api.openweathermap.org/geo/1.0/direct?q=Mosco&limit=4&appid=9e7183ff3d8bab45584106cb20688dff
   @override
   Future<Either<ApiError, List<GeocodingLocationDto>>> getAddressesByPart(
       {required final String locationPartialName}) async {

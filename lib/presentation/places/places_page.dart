@@ -103,8 +103,7 @@ class _PlacesWidget extends StatelessWidget {
                       itemBuilder: (BuildContext context, int index) {
                         if (index == 0) {
                           return GestureDetector(
-                            onTap: () =>
-                                context.router.replaceAll([WeatherRoute()]),
+                            onTap: () => context.router.pop(),
                             child: _PlaceWeatherContainer(
                                 placeName: state.currentPlace.location,
                                 temperature: state.currentPlace.temperature,
@@ -132,12 +131,19 @@ class _PlacesWidget extends StatelessWidget {
                                   ],
                                 );
                         } else {
-                          return _PlaceWeatherContainer(
-                            placeName: favorites.elementAt(index - 2).location,
-                            temperature:
-                                favorites.elementAt(index - 2).temperature,
-                            icon: favorites.elementAt(index - 2).icon,
-                            isCurrentPlace: false,
+                          return GestureDetector(
+                            onTap: () {
+                              context.router
+                                  .pop(favorites.elementAt(index - 2));
+                            },
+                            child: _PlaceWeatherContainer(
+                              placeName:
+                                  favorites.elementAt(index - 2).location,
+                              temperature:
+                                  favorites.elementAt(index - 2).temperature,
+                              icon: favorites.elementAt(index - 2).icon,
+                              isCurrentPlace: false,
+                            ),
                           );
                         }
                         return const SizedBox.shrink();

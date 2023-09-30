@@ -33,14 +33,9 @@ abstract class _$AppRouter extends RootStackRouter {
       );
     },
     WeatherRoute.name: (routeData) {
-      final args = routeData.argsAs<WeatherRouteArgs>(
-          orElse: () => const WeatherRouteArgs());
       return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: WeatherPage(
-          key: args.key,
-          locationData: args.locationData,
-        ),
+        child: const WeatherPage(),
       );
     },
     PlacesRoute.name: (routeData) {
@@ -106,40 +101,16 @@ class SplashRoute extends PageRouteInfo<void> {
 
 /// generated route for
 /// [WeatherPage]
-class WeatherRoute extends PageRouteInfo<WeatherRouteArgs> {
-  WeatherRoute({
-    Key? key,
-    FavoriteDataDto? locationData,
-    List<PageRouteInfo>? children,
-  }) : super(
+class WeatherRoute extends PageRouteInfo<void> {
+  const WeatherRoute({List<PageRouteInfo>? children})
+      : super(
           WeatherRoute.name,
-          args: WeatherRouteArgs(
-            key: key,
-            locationData: locationData,
-          ),
           initialChildren: children,
         );
 
   static const String name = 'WeatherRoute';
 
-  static const PageInfo<WeatherRouteArgs> page =
-      PageInfo<WeatherRouteArgs>(name);
-}
-
-class WeatherRouteArgs {
-  const WeatherRouteArgs({
-    this.key,
-    this.locationData,
-  });
-
-  final Key? key;
-
-  final FavoriteDataDto? locationData;
-
-  @override
-  String toString() {
-    return 'WeatherRouteArgs{key: $key, locationData: $locationData}';
-  }
+  static const PageInfo<void> page = PageInfo<void>(name);
 }
 
 /// generated route for
