@@ -31,6 +31,7 @@ class PlacesBloc extends Bloc<PlacesEvent, PlacesState> {
   }) : super(PlacesInitial()) {
     on<PlacesPageLoaded>(_onPlacesPageLoaded);
     on<PlacesAddNewFavoritesLocation>(_onNewPlaceAdded);
+    on<PlacesRemoveFavoritesLocation>(_onRemoveFavorite);
   }
 
   FutureOr<void> _onPlacesPageLoaded(
@@ -95,5 +96,16 @@ class PlacesBloc extends Bloc<PlacesEvent, PlacesState> {
         location: location,
       );
     }
+  }
+
+  FutureOr<void> _onRemoveFavorite(final PlacesRemoveFavoritesLocation event,
+      final Emitter<PlacesState> emit) async {
+    final favHolder = await favoriteRepository.getItem();
+    List<FavoriteDataDto> favorites =
+        favHolder != null ? favHolder.favorites : <FavoriteDataDto>[];
+
+    favorites.removeWhere((element) => element.location == event.location);
+    emit(PlacesDataState(currentPlace: current, favorites: [...favorites]));
+    await favoriteRepository.setItem(FavoriteHolderDto(favorites: favorites));
   }
 }
