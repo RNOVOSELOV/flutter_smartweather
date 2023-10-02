@@ -137,6 +137,8 @@ class _PlacesWidget extends StatelessWidget {
                                   .pop(favorites.elementAt(index - 2));
                             },
                             child: _PlaceWeatherContainer(
+                              key: ValueKey<String>(
+                                  favorites.elementAt(index - 2).toString()),
                               placeName:
                                   favorites.elementAt(index - 2).location,
                               temperature:

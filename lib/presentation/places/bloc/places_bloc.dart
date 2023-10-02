@@ -35,14 +35,26 @@ class PlacesBloc extends Bloc<PlacesEvent, PlacesState> {
 
   FutureOr<void> _onPlacesPageLoaded(
       final PlacesPageLoaded event, final Emitter<PlacesState> emit) async {
-     current = FavoriteDataDto.fromLocationWeatherDto(
+    current = FavoriteDataDto.fromLocationWeatherDto(
         dto: (await currentLocationWeatherRepository.getItem()) ??
             LocationWeatherDto.initial());
 
     final favHolder = await favoriteRepository.getItem();
-    final favorites =
+    List<FavoriteDataDto> favorites =
         favHolder != null ? favHolder.favorites : <FavoriteDataDto>[];
-    emit(PlacesDataState(currentPlace: current, favorites: favorites));
+    emit(PlacesDataState(currentPlace: current, favorites: [...favorites]));
+
+    for (int i = 0; i < favorites.length; i++) {
+      var value = favorites.removeAt(i);
+      value = await updateWeatherData(
+        latitude: value.latitude,
+        longitude: value.longitude,
+        location: value.location,
+      );
+      favorites.insert(i, value);
+      emit(PlacesDataState(currentPlace: current, favorites: [...favorites]));
+    }
+    await favoriteRepository.setItem(FavoriteHolderDto(favorites: favorites));
   }
 
   FutureOr<void> _onNewPlaceAdded(final PlacesAddNewFavoritesLocation event,
@@ -50,13 +62,38 @@ class PlacesBloc extends Bloc<PlacesEvent, PlacesState> {
     final favHolder = await favoriteRepository.getItem();
     final favorites =
         favHolder != null ? favHolder.favorites : <FavoriteDataDto>[];
-    favorites.add(FavoriteDataDto(
-        temperature: 0,
-        icon: '',
-        latitude: event.locationDto.latitude,
-        longitude: event.locationDto.longitude,
-        location: event.locationDto.location));
+
+    final newFavoriteValue = await updateWeatherData(
+      latitude: event.locationDto.latitude,
+      longitude: event.locationDto.longitude,
+      location: event.locationDto.location,
+    );
+    favorites.add(newFavoriteValue);
     await favoriteRepository.setItem(FavoriteHolderDto(favorites: favorites));
     emit(PlacesDataState(currentPlace: current, favorites: favorites));
+  }
+
+  Future<FavoriteDataDto> updateWeatherData({
+    required final double latitude,
+    required final double longitude,
+    required final String location,
+  }) async {
+    final result = await apiDataRepository.getWeatherForecast(
+        location: LocationDto(
+      latitude: latitude,
+      longitude: longitude,
+      location: location,
+    ));
+    if (result.isRight) {
+      return FavoriteDataDto.fromLocationWeatherDto(dto: result.right);
+    } else {
+      return FavoriteDataDto(
+        temperature: 0,
+        icon: '',
+        latitude: latitude,
+        longitude: longitude,
+        location: location,
+      );
+    }
   }
 }
