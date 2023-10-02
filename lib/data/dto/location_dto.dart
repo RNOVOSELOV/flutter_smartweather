@@ -10,10 +10,11 @@ class LocationDto extends Equatable {
   final double latitude;
   final String location;
 
-  const LocationDto(
-      {required this.latitude,
-      required this.longitude,
-      required this.location});
+  const LocationDto({
+    required this.latitude,
+    required this.longitude,
+    required this.location,
+  });
 
   const LocationDto.initial()
       : this(latitude: 55.75, longitude: 37.62, location: '');
@@ -43,7 +44,11 @@ class LocationDto extends Equatable {
   Map<String, dynamic> toJson() => _$LocationDtoToJson(this);
 
   @override
-  List<Object?> get props => [latitude, longitude, location];
+  List<Object?> get props => [
+        longitude,
+        latitude,
+        location,
+      ];
 
   @override
   bool? get stringify => true;

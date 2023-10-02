@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:talker_flutter/talker_flutter.dart';
-import 'package:weather/data/dto/favorite_data_dto.dart';
 import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/data/dto/location_weather_dto.dart';
 import 'package:weather/data/geolocation/geo_error.dart';
@@ -21,9 +20,8 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
   final LocalWeatherStorageRepository currentLocationWeatherRepository;
   final Talker talker;
 
-  late LocationDto lastRequestedLocation;
-
-  FavoriteDataDto? favoriteDataDto;
+  bool isCurrentLocationActive = true;
+  LocationDto? lastRequestedLocation;
 
   WeatherBloc({
     required this.talker,
@@ -32,7 +30,7 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     required this.currentLocationWeatherRepository,
   }) : super(WeatherInitialState()) {
     on<WeatherPageLoaded>(_onWeatherPageLoaded);
-    on<AddNewPlaceEvent>(_onAddNewPlaceEvent);
+    on<SelectFavoriteLocationEvent>(_onSelectFavoritePlaceEvent);
     on<WeatherResendQuery>(_onWeatherResend);
   }
 
@@ -40,42 +38,47 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     final WeatherPageLoaded event,
     final Emitter<WeatherState> emit,
   ) async {
-    favoriteDataDto = event.data;
     emit(WeatherStartLongOperationState());
-
+    isCurrentLocationActive = true;
     LocationDto location;
-    if (favoriteDataDto == null) {
-      final savedData = await readSavedDataFromSharedPreferences();
-      talker.info('Saved data location: ${savedData?.location}');
-      if (savedData != null) {
-        emit(WeatherDataState(data: savedData));
-        location = savedData.location;
-      } else {
-        emit(const WeatherNoDataState());
-        location = const LocationDto.initial();
-      }
-      final result = await updateCurrentLocationCoordinates(emit);
-      if (result != null) {
-        location = result;
-      }
-      talker.info('Updated location: $location');
+    final savedData = await readSavedDataFromSharedPreferences();
+    talker.info('Saved data location: ${savedData?.location}');
+    if (savedData != null) {
+      emit(WeatherDataState(data: savedData));
+      location = savedData.location;
     } else {
-      location = LocationDto(
-        latitude: favoriteDataDto!.latitude,
-        longitude: favoriteDataDto!.longitude,
-        location: favoriteDataDto!.location,
-      );
+      emit(const WeatherNoDataState());
+      location = const LocationDto.initial();
     }
+    final result = await updateCurrentLocationCoordinates(emit);
+    if (result != null) {
+      location = result;
+    }
+    talker.info('Updated location: $location');
+
     await updateWeatherData(location, emit);
-    lastRequestedLocation = location;
     emit(WeatherEndLongOperationState());
   }
 
   FutureOr<void> _onWeatherResend(
       final WeatherResendQuery event, final Emitter<WeatherState> emit) async {
+    if (lastRequestedLocation == null) {
+      return;
+    }
     emit(WeatherStartLongOperationState());
-    await updateWeatherData(lastRequestedLocation, emit);
+    isCurrentLocationActive = false;
+    await updateWeatherData(lastRequestedLocation!, emit);
     emit(WeatherEndLongOperationState());
+  }
+
+  FutureOr<void> _onSelectFavoritePlaceEvent(
+      final SelectFavoriteLocationEvent event,
+      final Emitter<WeatherState> emit) async {
+    // emit(WeatherStartLongOperationState());
+    isCurrentLocationActive = false;
+    talker.info('Favorite location: ${event.locationDto}');
+    await updateWeatherData(event.locationDto, emit);
+    // emit(WeatherEndLongOperationState());
   }
 
   FutureOr<LocationWeatherDto?> readSavedDataFromSharedPreferences() async {
@@ -101,11 +104,12 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     final LocationDto location,
     final Emitter<WeatherState> emit,
   ) async {
+    lastRequestedLocation = location;
     final result =
         await apiDataRepository.getWeatherForecast(location: location);
     if (result.isRight) {
       emit(WeatherDataState(data: result.right));
-      if (favoriteDataDto == null) {
+      if (isCurrentLocationActive) {
         await currentLocationWeatherRepository.setItem(result.right);
       }
     } else {
@@ -113,10 +117,5 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
       emit(WeatherShowApiError(
           message: apiError.message, canResend: apiError.canResend));
     }
-  }
-
-  FutureOr<void> _onAddNewPlaceEvent(
-      final AddNewPlaceEvent event, final Emitter<WeatherState> emit) {
-    emit(WeatherAddPlaceState(location: lastRequestedLocation));
   }
 }

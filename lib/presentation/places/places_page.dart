@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:weather/data/dto/location_dto.dart';
 import 'package:weather/di/service_locator.dart';
 import 'package:weather/navigation/router.dart';
 import 'package:weather/presentation/places/bloc/places_bloc.dart';
@@ -42,84 +43,163 @@ class _PlacesWidget extends StatelessWidget {
               ),
             ),
           ),
-          CustomScrollView(
-            slivers: [
-              const SliverAppBar(
-                primary: true,
-                stretch: true,
-                pinned: true,
-                floating: true,
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                centerTitle: true,
-                foregroundColor: AppColors.whiteColor,
-                title: Text('Избранное'),
-              ),
-              const SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 12,
-                ),
-              ),
-              BlocBuilder<PlacesBloc, PlacesState>(
-                builder: (context, state) {
-                  if (state is PlacesDataState) {
-                    final favorites = state.favorites;
-                    return SliverList.separated(
-                      itemCount: 1 + 1 + favorites.length,
-                      separatorBuilder: (BuildContext context, int index) {
-                        return const SizedBox(height: 8);
-                      },
-                      itemBuilder: (BuildContext context, int index) {
-                        if (index == 0) {
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  primary: true,
+                  stretch: true,
+                  pinned: false,
+                  floating: true,
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  centerTitle: true,
+                  foregroundColor: AppColors.whiteColor,
+                  title: const Text('Избранное'),
+                  actions: [
+                    BlocBuilder<PlacesBloc, PlacesState>(
+                      builder: (context, state) {
+                        if (state is PlacesDataState) {
                           return GestureDetector(
-                            onTap: () => context.router.replaceAll([
-                              WeatherRoute()]),
-                            child: _PlaceWeatherContainer(
-                                placeName: state.currentPlace.location,
-                                temperature: state.currentPlace.temperature,
-                                icon: state.currentPlace.icon,
-                                isCurrentPlace: true),
-                          );
-                        } else if (index == 1) {
-                          return favorites.isEmpty
-                              ? const SizedBox.shrink()
-                              : Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const SizedBox(height: 12),
-                                    Container(
-                                        margin: const EdgeInsets.symmetric(
-                                            horizontal: 32),
-                                        width: double.infinity,
-                                        child: Text(
-                                          'Сохраненные местоположения',
-                                          textAlign: TextAlign.left,
-                                          style: context.theme.b2.copyWith(
-                                              color: AppColors.whiteColor
-                                                  .withAlpha(210)),
-                                        )),
-                                  ],
-                                );
-                        } else {
-                          return _PlaceWeatherContainer(
-                            placeName: favorites.elementAt(index - 2).location,
-                            temperature:
-                                favorites.elementAt(index - 2).temperature,
-                            icon: favorites.elementAt(index - 2).icon,
-                            isCurrentPlace: false,
+                            onTap: () async {
+                              final bloc = context.read<PlacesBloc>();
+                              final result =
+                                  await context.router.push(AddNewLocationRoute(
+                                      location: LocationDto(
+                                location: state.currentPlace.location,
+                                latitude: state.currentPlace.latitude,
+                                longitude: state.currentPlace.longitude,
+                              )));
+                              bloc.add(PlacesAddNewFavoritesLocation(
+                                  locationDto: result as LocationDto));
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Icon(
+                                Icons.add,
+                                color: AppColors.textWhiteColor,
+                              ),
+                            ),
                           );
                         }
                         return const SizedBox.shrink();
                       },
-                    );
-                  }
-                  return const SliverToBoxAdapter(child: SizedBox.shrink());
-                },
-              ),
-            ],
+                    ),
+                  ],
+                ),
+                const SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 12,
+                  ),
+                ),
+                BlocBuilder<PlacesBloc, PlacesState>(
+                  builder: (context, state) {
+                    if (state is PlacesDataState) {
+                      final favorites = state.favorites;
+                      return SliverList.separated(
+                        itemCount: 1 + 1 + favorites.length,
+                        separatorBuilder: (BuildContext context, int index) {
+                          return const SizedBox(height: 8);
+                        },
+                        itemBuilder: (BuildContext context, int index) {
+                          if (index == 0) {
+                            return GestureDetector(
+                              onTap: () => context.router.pop(),
+                              child: _PlaceWeatherContainer(
+                                  placeName: state.currentPlace.location,
+                                  temperature: state.currentPlace.temperature,
+                                  icon: state.currentPlace.icon,
+                                  isCurrentPlace: true),
+                            );
+                          } else if (index == 1) {
+                            return favorites.isEmpty
+                                ? const SizedBox.shrink()
+                                : Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const SizedBox(height: 12),
+                                      Container(
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 32),
+                                          width: double.infinity,
+                                          child: Text(
+                                            'Сохраненные местоположения',
+                                            textAlign: TextAlign.left,
+                                            style: context.theme.b2.copyWith(
+                                                color: AppColors.whiteColor
+                                                    .withAlpha(210)),
+                                          )),
+                                    ],
+                                  );
+                          } else {
+                            return GestureDetector(
+                              onTap: () {
+                                context.router
+                                    .pop(favorites.elementAt(index - 2));
+                              },
+                              child: Dismissible(
+                                key: ValueKey<String>(
+                                    favorites.elementAt(index - 2).toString()),
+                                background:
+                                    const _DismissibleBackground(isLeft: true),
+                                secondaryBackground:
+                                    const _DismissibleBackground(isLeft: false),
+                                onDismissed: (_) => context
+                                    .read<PlacesBloc>()
+                                    .add(PlacesRemoveFavoritesLocation(
+                                        location: favorites
+                                            .elementAt(index - 2)
+                                            .location)),
+                                child: _PlaceWeatherContainer(
+                                  placeName:
+                                      favorites.elementAt(index - 2).location,
+                                  temperature: favorites
+                                      .elementAt(index - 2)
+                                      .temperature,
+                                  icon: favorites.elementAt(index - 2).icon,
+                                  isCurrentPlace: false,
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      );
+                    }
+                    return const SliverToBoxAdapter(child: SizedBox.shrink());
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _DismissibleBackground extends StatelessWidget {
+  const _DismissibleBackground({Key? key, required this.isLeft})
+      : super(key: key);
+
+  final bool isLeft;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: AppColors.lightPink,
+        shape: BoxShape.rectangle,
+        borderRadius: const BorderRadius.all(Radius.circular(20)),
+        border: Border.all(
+          color: AppColors.whiteColor.withAlpha(50),
+          width: 1,
+        ),
+      ),
+      alignment: isLeft ? Alignment.centerLeft : Alignment.centerRight,
+      child: const Icon(Icons.delete_outline,
+          color: AppColors.whiteColor, size: 32),
     );
   }
 }
@@ -141,7 +221,6 @@ class _PlaceWeatherContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: AppColors.coolGreyColor,

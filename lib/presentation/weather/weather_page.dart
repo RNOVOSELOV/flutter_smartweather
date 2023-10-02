@@ -26,14 +26,12 @@ import 'package:weather/theme/theme_extensions.dart';
 
 @RoutePage()
 class WeatherPage extends StatelessWidget {
-  const WeatherPage({Key? key, this.locationData}) : super(key: key);
-
-  final FavoriteDataDto? locationData;
+  const WeatherPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl.get<WeatherBloc>()..add(WeatherPageLoaded(data: locationData)),
+      create: (_) => sl.get<WeatherBloc>()..add(const WeatherPageLoaded()),
       child: const _WeatherPageWidget(),
     );
   }
@@ -51,6 +49,10 @@ class _WeatherPageWidget extends StatelessWidget {
           context.read<WeatherBloc>().add(const WeatherResendQuery());
         },
         child: BlocListener<WeatherBloc, WeatherState>(
+          listenWhen: (previous, current) =>
+              current is WeatherShowApiError ||
+              current is WeatherShowGeoError ||
+              current is WeatherAddPlaceState,
           listener: (context, state) {
             if (state is WeatherShowApiError) {
               showError(context, state.message, state.canResend);
@@ -145,18 +147,30 @@ class _WeatherPageWidget extends StatelessWidget {
   }
 }
 
-class _WeatherWidget extends StatelessWidget {
+class _WeatherWidget extends StatefulWidget {
   const _WeatherWidget({Key? key}) : super(key: key);
 
   @override
+  State<_WeatherWidget> createState() => _WeatherWidgetState();
+}
+
+class _WeatherWidgetState extends State<_WeatherWidget> {
+  bool inProgress = true;
+  LocationDto? locationData;
+  WeatherDto? weatherData;
+  WeatherAdditionalDto? additionalWeatherData;
+  final List<ForecastDto> forecasts = <ForecastDto>[];
+  int currentData = 10;
+
+  @override
   Widget build(BuildContext context) {
-    bool inProgress = true;
-    LocationDto? locationData;
-    WeatherDto? weatherData;
-    WeatherAdditionalDto? additionalWeatherData;
-    List<ForecastDto> forecasts = <ForecastDto>[];
-    int currentData = 10;
     return BlocBuilder<WeatherBloc, WeatherState>(
+      buildWhen: (previous, current) =>
+          current is WeatherDataState ||
+          current is WeatherNoDataState ||
+          current is WeatherInitialState ||
+          current is WeatherStartLongOperationState ||
+          current is WeatherEndLongOperationState,
       builder: (context, state) {
         if (state is WeatherInitialState ||
             state is WeatherStartLongOperationState) {
@@ -169,14 +183,15 @@ class _WeatherWidget extends StatelessWidget {
           locationData = state.data.location;
           weatherData = state.data.weather;
           additionalWeatherData = state.data.additionalWeather;
-          forecasts = state.data.forecasts;
+          forecasts.clear();
+          forecasts.addAll(state.data.forecasts);
           currentData = state.data.currentTime;
         }
         if (state is WeatherNoDataState) {
           locationData = null;
           weatherData = null;
           additionalWeatherData = null;
-          forecasts = <ForecastDto>[];
+          forecasts.clear();
           currentData = DateTime.now().millisecondsSinceEpoch ~/ 1000;
         }
 
@@ -301,7 +316,20 @@ class _LocationBar extends StatelessWidget {
         children: [
           const SizedBox(width: 16),
           GestureDetector(
-            onTap: () => context.router.push(const PlacesRoute()),
+            onTap: () async {
+              final bloc = context.read<WeatherBloc>();
+              final result = await context.router.push(const PlacesRoute());
+              final data = result as FavoriteDataDto?;
+              if (data == null) {
+                bloc.add(const WeatherPageLoaded());
+              } else {
+                bloc.add(SelectFavoriteLocationEvent(
+                    locationDto: LocationDto(
+                        latitude: data.latitude,
+                        longitude: data.longitude,
+                        location: data.location)));
+              }
+            },
             child: const Icon(
               Icons.list,
               size: 24,
@@ -331,15 +359,6 @@ class _LocationBar extends StatelessWidget {
               ),
             ),
           ),
-          // GestureDetector(
-          //   onTap: () =>
-          //       context.read<WeatherBloc>().add(const AddNewPlaceEvent()),
-          //   child: const Icon(
-          //     Icons.add,
-          //     size: 24,
-          //     color: AppColors.textWhiteColor,
-          //   ),
-          // ),
           const SizedBox(width: 16),
         ],
       ),

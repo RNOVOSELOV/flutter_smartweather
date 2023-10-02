@@ -32,13 +32,12 @@ class LocationWeatherDto extends Equatable {
           currentTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
         );
 
-  LocationWeatherDto copyWith({
-    LocationDto? location,
-    WeatherDto? weather,
-    WeatherAdditionalDto? additional,
-    List<ForecastDto>? forecasts,
-    int? secondsSinceEpoch
-  }) {
+  LocationWeatherDto copyWith(
+      {LocationDto? location,
+      WeatherDto? weather,
+      WeatherAdditionalDto? additional,
+      List<ForecastDto>? forecasts,
+      int? secondsSinceEpoch}) {
     return LocationWeatherDto(
       weather: weather ?? this.weather,
       location: location ?? this.location,
@@ -54,7 +53,13 @@ class LocationWeatherDto extends Equatable {
   Map<String, dynamic> toJson() => _$LocationWeatherDtoToJson(this);
 
   @override
-  List<Object?> get props => [weather, location, additionalWeather, forecasts];
+  List<Object?> get props => [
+        location,
+        weather,
+        additionalWeather,
+        forecasts,
+        currentTime,
+      ];
 
   @override
   bool? get stringify => true;

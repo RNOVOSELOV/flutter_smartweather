@@ -19,5 +19,8 @@ class PlacesDataState extends PlacesState {
   });
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [
+        currentPlace,
+        favorites,
+      ];
 }
