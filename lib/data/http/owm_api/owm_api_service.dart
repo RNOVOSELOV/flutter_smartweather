@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:either_dart/either.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -80,7 +78,7 @@ class OwmApiService extends BaseApiService implements ApiDataProvider {
           'appid': _apiKey ?? 'nonexistenttoken',
         },
       );
-      final  www = response.data as Iterable;
+      final www = response.data as Iterable;
       return www.map((e) => GeocodingLocationDto.fromJson(e)).toList();
     });
   }

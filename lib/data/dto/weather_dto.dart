@@ -67,12 +67,12 @@ class WeatherDto extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
         description,
         icon,
         temperature,
         temperatureMin,
         temperatureMax,
+        id,
       ];
 
   @override

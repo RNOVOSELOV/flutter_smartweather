@@ -146,7 +146,6 @@ class _PlacesWidget extends StatelessWidget {
                             ),
                           );
                         }
-                        return const SizedBox.shrink();
                       },
                     );
                   }

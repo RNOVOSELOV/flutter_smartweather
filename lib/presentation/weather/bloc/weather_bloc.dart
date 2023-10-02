@@ -66,8 +66,19 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
       return;
     }
     emit(WeatherStartLongOperationState());
+    isCurrentLocationActive = false;
     await updateWeatherData(lastRequestedLocation!, emit);
     emit(WeatherEndLongOperationState());
+  }
+
+  FutureOr<void> _onSelectFavoritePlaceEvent(
+      final SelectFavoriteLocationEvent event,
+      final Emitter<WeatherState> emit) async {
+    // emit(WeatherStartLongOperationState());
+    isCurrentLocationActive = false;
+    talker.info('Favorite location: ${event.locationDto}');
+    await updateWeatherData(event.locationDto, emit);
+    // emit(WeatherEndLongOperationState());
   }
 
   FutureOr<LocationWeatherDto?> readSavedDataFromSharedPreferences() async {
@@ -106,11 +117,5 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
       emit(WeatherShowApiError(
           message: apiError.message, canResend: apiError.canResend));
     }
-  }
-
-  FutureOr<void> _onSelectFavoritePlaceEvent(
-      final SelectFavoriteLocationEvent event,
-      final Emitter<WeatherState> emit) async {
-    await updateWeatherData(event.locationDto, emit);
   }
 }
