@@ -43,61 +43,61 @@ class _PlacesWidget extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  primary: true,
-                  stretch: true,
-                  pinned: false,
-                  floating: true,
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  centerTitle: true,
-                  foregroundColor: AppColors.whiteColor,
-                  title: const Text('Избранное'),
-                  actions: [
-                    BlocBuilder<PlacesBloc, PlacesState>(
-                      builder: (context, state) {
-                        if (state is PlacesDataState) {
-                          return GestureDetector(
-                            onTap: () async {
-                              final bloc = context.read<PlacesBloc>();
-                              final result =
-                                  await context.router.push(AddNewLocationRoute(
-                                      location: LocationDto(
-                                location: state.currentPlace.location,
-                                latitude: state.currentPlace.latitude,
-                                longitude: state.currentPlace.longitude,
-                              )));
-                              bloc.add(PlacesAddNewFavoritesLocation(
-                                  locationDto: result as LocationDto));
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16.0),
-                              child: Icon(
-                                Icons.add,
-                                color: AppColors.textWhiteColor,
-                              ),
+          CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                primary: true,
+                stretch: true,
+                pinned: false,
+                floating: true,
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                centerTitle: true,
+                foregroundColor: AppColors.whiteColor,
+                title: const Text('Избранное'),
+                actions: [
+                  BlocBuilder<PlacesBloc, PlacesState>(
+                    builder: (context, state) {
+                      if (state is PlacesDataState) {
+                        return GestureDetector(
+                          onTap: () async {
+                            final bloc = context.read<PlacesBloc>();
+                            final result =
+                                await context.router.push(AddNewLocationRoute(
+                                    location: LocationDto(
+                              location: state.currentPlace.location,
+                              latitude: state.currentPlace.latitude,
+                              longitude: state.currentPlace.longitude,
+                            )));
+                            bloc.add(PlacesAddNewFavoritesLocation(
+                                locationDto: result as LocationDto));
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Icon(
+                              Icons.add,
+                              color: AppColors.textWhiteColor,
                             ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                  ],
-                ),
-                const SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 12,
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
                   ),
+                ],
+              ),
+              const SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 12,
                 ),
-                BlocBuilder<PlacesBloc, PlacesState>(
-                  builder: (context, state) {
-                    if (state is PlacesDataState) {
-                      final favorites = state.favorites;
-                      return SliverList.separated(
+              ),
+              BlocBuilder<PlacesBloc, PlacesState>(
+                builder: (context, state) {
+                  if (state is PlacesDataState) {
+                    final favorites = state.favorites;
+                    return SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverList.separated(
                         itemCount: 1 + 1 + favorites.length,
                         separatorBuilder: (BuildContext context, int index) {
                           return const SizedBox(height: 8);
@@ -121,7 +121,7 @@ class _PlacesWidget extends StatelessWidget {
                                       const SizedBox(height: 12),
                                       Container(
                                           margin: const EdgeInsets.symmetric(
-                                              horizontal: 32),
+                                              horizontal: 16),
                                           width: double.infinity,
                                           child: Text(
                                             'Сохраненные местоположения',
@@ -164,13 +164,13 @@ class _PlacesWidget extends StatelessWidget {
                             );
                           }
                         },
-                      );
-                    }
-                    return const SliverToBoxAdapter(child: SizedBox.shrink());
-                  },
-                ),
-              ],
-            ),
+                      ),
+                    );
+                  }
+                  return const SliverToBoxAdapter(child: SizedBox.shrink());
+                },
+              ),
+            ],
           ),
         ],
       ),
