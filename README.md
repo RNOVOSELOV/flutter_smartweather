@@ -11,9 +11,10 @@
 
 Внимание! для тестирования и запуска проекта необходимо в корне создать файл .env, содержащий ключи сервисов OpenWeatherMap и Yandex Map Kit в формате:
 
-OPEN_WEATHER_MAP_TOKEN=<token>
-
-YANDEX_MAP_KIT_TOKEN=<token>
+```sh
+OPEN_WEATHER_MAP_TOKEN=YOUR_OWM_TOKEN
+YANDEX_MAP_KIT_TOKEN=YOUR_YANDEX_MAP_TOKEN
+```
 
 <!--
 OPEN_WEATHER_MAP_TOKEN=9e7183ff3d8bab45584106cb20688dff
